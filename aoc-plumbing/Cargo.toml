@@ -1,7 +1,7 @@
 [package]
 name = "aoc-plumbing"
 version = "0.1.0"
-authors = ["Matt Chun-Lum <matt@questionable.engineering>"]
+authors = ["Jack Huang <jackhxs@gmail.com>"]
 edition = "2021"
 description = "Plumbing for Advent of Code (problem traits and such)"
 
