@@ -6,6 +6,10 @@ new DAY NAME:
 test:
     cargo test --release -- --ignored
 
+# auto-format rust files
+format:
+    cargo fmt
+
 # run benchmarks for a given padded day `just bench 001`
 bench DAY:
     cargo bench -p aoc-benchmarking -- {{DAY}}
