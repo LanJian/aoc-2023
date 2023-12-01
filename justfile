@@ -1,3 +1,5 @@
+alias fmt := format
+
 # generate the boilerplate for a new day's problem `just new 1 foo-bar-baz`
 new DAY NAME:
     scripts/new.sh {{DAY}} {{NAME}}
