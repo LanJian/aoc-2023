@@ -10,6 +10,14 @@ struct CubeSet {
     blue: usize,
 }
 
+impl CubeSet {
+    fn max_with(&mut self, other: &Self) {
+        self.red = self.red.max(other.red);
+        self.green = self.green.max(other.green);
+        self.blue = self.blue.max(other.blue);
+    }
+}
+
 impl FromStr for CubeSet {
     type Err = anyhow::Error;
 
@@ -36,28 +44,16 @@ impl FromStr for CubeSet {
 #[derive(Debug, Clone)]
 struct Game {
     id: usize,
-    cube_sets: Vec<CubeSet>,
+    max_cube_set: CubeSet,
 }
 
 impl Game {
     fn is_possible(&self, red: usize, green: usize, blue: usize) -> bool {
-        self.cube_sets
-            .iter()
-            .all(|x| x.red <= red && x.green <= green && x.blue <= blue)
+        self.max_cube_set.red <= red && self.max_cube_set.green <= green && self.max_cube_set.blue <= blue
     }
 
     fn minimum_set_power(&self) -> usize {
-        let mut min_red = 0;
-        let mut min_green = 0;
-        let mut min_blue = 0;
-
-        for cube_set in &self.cube_sets {
-            min_red = min_red.max(cube_set.red);
-            min_green = min_green.max(cube_set.green);
-            min_blue = min_blue.max(cube_set.blue);
-        }
-
-        min_red * min_green * min_blue
+        self.max_cube_set.red * self.max_cube_set.green * self.max_cube_set.blue
     }
 }
 
@@ -67,12 +63,13 @@ impl FromStr for Game {
     fn from_str(s: &str) -> Result<Self> {
         if let Some((left, right)) = s.split_once(": ") {
             let id = left[5..].parse()?;
-            let cube_sets = right
-                .split("; ")
-                .map(|x| CubeSet::from_str(x))
-                .collect::<Result<Vec<CubeSet>>>()?;
+            let mut max_cube_set = CubeSet::default();
 
-            Ok(Game { id, cube_sets })
+            for token in right.split("; ") {
+                max_cube_set.max_with(&CubeSet::from_str(token)?);
+            }
+
+            Ok(Game { id, max_cube_set })
         } else {
             bail!("could not parse game")
         }
