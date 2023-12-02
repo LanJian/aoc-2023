@@ -77,6 +77,7 @@ version = "0.1.0"
 dependencies = [
  "aoc-plumbing",
  "criterion",
+ "cube-conundrum",
  "trebuchet",
 ]
 
@@ -88,6 +89,7 @@ dependencies = [
  "aoc-plumbing",
  "clap",
  "clap_complete",
+ "cube-conundrum",
  "serde",
  "serde_json",
  "trebuchet",
@@ -281,6 +283,17 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "5a22b2d63d4d1dc0b7f1b6b2747dd0088008a9be28b6ddf0b1e7d335e3037294"
 dependencies = [
  "cfg-if",
+]
+
+[[package]]
+name = "cube-conundrum"
+version = "0.1.0"
+dependencies = [
+ "anyhow",
+ "aoc-plumbing",
+ "nom",
+ "rustc-hash",
+ "serde",
 ]
 
 [[package]]
