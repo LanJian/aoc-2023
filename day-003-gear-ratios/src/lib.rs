@@ -92,7 +92,7 @@ impl FromStr for GearRatios {
                     }
                 }
 
-                if !(*cur == b'.') {
+                if *cur != b'.' {
                     symbol_coords.insert((i, j).into());
                     if *cur == b'*' {
                         gear_coords.insert((i, j).into());

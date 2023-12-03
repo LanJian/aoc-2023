@@ -102,7 +102,7 @@ impl FromStr for CubeConundrum {
     fn from_str(s: &str) -> Result<Self, Self::Err> {
         let games = s
             .lines()
-            .map(|x| Game::from_str(x))
+            .map(Game::from_str)
             .collect::<Result<Vec<Game>>>()?;
         Ok(Self { games })
     }
