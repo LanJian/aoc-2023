@@ -98,6 +98,10 @@ dependencies = [
 ]
 
 [[package]]
+name = "aoc-common"
+version = "0.1.0"
+
+[[package]]
 name = "aoc-plumbing"
 version = "0.1.0"
 dependencies = [
@@ -319,6 +323,7 @@ name = "gear-ratios"
 version = "0.1.0"
 dependencies = [
  "anyhow",
+ "aoc-common",
  "aoc-plumbing",
  "nom",
  "rustc-hash",

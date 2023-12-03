@@ -1,11 +1,9 @@
-use crate::grid::Coordinate;
+use aoc_common::grid::Coordinate;
 use std::str;
 use std::str::FromStr;
 
 use aoc_plumbing::Problem;
 use rustc_hash::{FxHashMap, FxHashSet};
-
-mod grid;
 
 #[derive(Debug, Clone, Hash, PartialEq, Eq, Copy)]
 struct PartNumber {
