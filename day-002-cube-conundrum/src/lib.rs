@@ -49,7 +49,9 @@ struct Game {
 
 impl Game {
     fn is_possible(&self, red: usize, green: usize, blue: usize) -> bool {
-        self.max_cube_set.red <= red && self.max_cube_set.green <= green && self.max_cube_set.blue <= blue
+        self.max_cube_set.red <= red
+            && self.max_cube_set.green <= green
+            && self.max_cube_set.blue <= blue
     }
 
     fn minimum_set_power(&self) -> usize {

@@ -78,6 +78,7 @@ dependencies = [
  "aoc-plumbing",
  "criterion",
  "cube-conundrum",
+ "gear-ratios",
  "trebuchet",
 ]
 
@@ -90,6 +91,7 @@ dependencies = [
  "clap",
  "clap_complete",
  "cube-conundrum",
+ "gear-ratios",
  "serde",
  "serde_json",
  "trebuchet",
@@ -310,6 +312,17 @@ checksum = "a258e46cdc063eb8519c00b9fc845fc47bcfca4130e2f08e88665ceda8474245"
 dependencies = [
  "libc",
  "windows-sys 0.52.0",
+]
+
+[[package]]
+name = "gear-ratios"
+version = "0.1.0"
+dependencies = [
+ "anyhow",
+ "aoc-plumbing",
+ "nom",
+ "rustc-hash",
+ "serde",
 ]
 
 [[package]]
