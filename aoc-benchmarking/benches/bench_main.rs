@@ -3,6 +3,7 @@ use criterion::criterion_main;
 use aoc_benchmarking::aoc_benches;
 use cube_conundrum::CubeConundrum;
 use gear_ratios::GearRatios;
+use scratchcards::Scratchcards;
 use trebuchet::Trebuchet;
 // import_marker
 
@@ -30,6 +31,13 @@ aoc_benches! {
         day_003,
         "../day-003-gear-ratios/input.txt",
         GearRatios,
+        "Part 1",
+        "Part 2"
+    ),
+    (
+        day_004,
+        "../day-004-scratchcards/input.txt",
+        Scratchcards,
         "Part 1",
         "Part 2"
     ),

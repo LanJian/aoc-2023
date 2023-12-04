@@ -47,7 +47,11 @@ impl Calibration {
     }
 
     fn recover_enhanced(&self) -> Result<u32> {
-        let first_digit_pair = self.text.chars().enumerate().find(|(_, c)| c.is_ascii_digit());
+        let first_digit_pair = self
+            .text
+            .chars()
+            .enumerate()
+            .find(|(_, c)| c.is_ascii_digit());
         let last_digit_pair = self
             .text
             .chars()
