@@ -9,6 +9,7 @@ use clap::{Args, CommandFactory, Parser, Subcommand};
 use clap_complete::{generate, shells::Zsh};
 use cube_conundrum::CubeConundrum;
 use gear_ratios::GearRatios;
+use if_you_give_a_seed_a_fertilizer::IfYouGiveASeedAFertilizer;
 use scratchcards::Scratchcards;
 use trebuchet::Trebuchet;
 // import_marker
@@ -172,5 +173,6 @@ generate_cli! {
     (CubeConundrum, 2),
     (GearRatios, 3),
     (Scratchcards, 4),
+    (IfYouGiveASeedAFertilizer, 5),
     // command_marker
 }

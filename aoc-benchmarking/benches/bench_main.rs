@@ -3,6 +3,7 @@ use criterion::criterion_main;
 use aoc_benchmarking::aoc_benches;
 use cube_conundrum::CubeConundrum;
 use gear_ratios::GearRatios;
+use if_you_give_a_seed_a_fertilizer::IfYouGiveASeedAFertilizer;
 use scratchcards::Scratchcards;
 use trebuchet::Trebuchet;
 // import_marker
@@ -38,6 +39,13 @@ aoc_benches! {
         day_004,
         "../day-004-scratchcards/input.txt",
         Scratchcards,
+        "Part 1",
+        "Part 2"
+    ),
+    (
+        day_005,
+        "../day-005-if-you-give-a-seed-a-fertilizer/input.txt",
+        IfYouGiveASeedAFertilizer,
         "Part 1",
         "Part 2"
     ),

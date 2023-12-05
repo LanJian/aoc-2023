@@ -79,6 +79,7 @@ dependencies = [
  "criterion",
  "cube-conundrum",
  "gear-ratios",
+ "if-you-give-a-seed-a-fertilizer",
  "scratchcards",
  "trebuchet",
 ]
@@ -93,6 +94,7 @@ dependencies = [
  "clap_complete",
  "cube-conundrum",
  "gear-ratios",
+ "if-you-give-a-seed-a-fertilizer",
  "scratchcards",
  "serde",
  "serde_json",
@@ -349,6 +351,18 @@ name = "hermit-abi"
 version = "0.3.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "d77f7ec81a6d05a3abb01ab6eb7590f6083d08449fe5a1c8b1e620283546ccb7"
+
+[[package]]
+name = "if-you-give-a-seed-a-fertilizer"
+version = "0.1.0"
+dependencies = [
+ "anyhow",
+ "aoc-common",
+ "aoc-plumbing",
+ "nom",
+ "rustc-hash",
+ "serde",
+]
 
 [[package]]
 name = "is-terminal"
