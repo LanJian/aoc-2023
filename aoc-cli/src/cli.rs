@@ -12,6 +12,7 @@ use gear_ratios::GearRatios;
 use if_you_give_a_seed_a_fertilizer::IfYouGiveASeedAFertilizer;
 use scratchcards::Scratchcards;
 use trebuchet::Trebuchet;
+use wait_for_it::WaitForIt;
 // import_marker
 
 // I'm not proud
@@ -174,5 +175,6 @@ generate_cli! {
     (GearRatios, 3),
     (Scratchcards, 4),
     (IfYouGiveASeedAFertilizer, 5),
+    (WaitForIt, 6),
     // command_marker
 }

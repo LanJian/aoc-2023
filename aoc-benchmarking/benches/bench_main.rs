@@ -6,6 +6,7 @@ use gear_ratios::GearRatios;
 use if_you_give_a_seed_a_fertilizer::IfYouGiveASeedAFertilizer;
 use scratchcards::Scratchcards;
 use trebuchet::Trebuchet;
+use wait_for_it::WaitForIt;
 // import_marker
 
 criterion_main! {
@@ -46,6 +47,13 @@ aoc_benches! {
         day_005,
         "../day-005-if-you-give-a-seed-a-fertilizer/input.txt",
         IfYouGiveASeedAFertilizer,
+        "Part 1",
+        "Part 2"
+    ),
+    (
+        day_006,
+        "../day-006-wait-for-it/input.txt",
+        WaitForIt,
         "Part 1",
         "Part 2"
     ),
