@@ -2,11 +2,10 @@ use std::str::FromStr;
 
 use anyhow::bail;
 use aoc_plumbing::Problem;
-use rustc_hash::FxHashMap;
 
 #[derive(Debug, Clone, Ord, PartialOrd, PartialEq, Eq, Copy, Hash)]
 enum Card {
-    Joker,
+    Joker = 1,
     Two,
     Three,
     Four,
@@ -64,18 +63,19 @@ enum HandKind {
 
 impl HandKind {
     fn from_cards(cards: &[Card; 5]) -> Self {
-        let mut freq: FxHashMap<Card, usize> = FxHashMap::default();
+        let mut freq: [u8; 15] = [0; 15];
         let mut freq_jokers = 0;
-        let mut max_card = &cards[0];
+        let mut max_discrim = 0;
         let mut max_freq = 0;
         for card in cards {
+            let discrim = *card as usize;
             match card {
                 Card::Joker => freq_jokers += 1,
                 _ => {
-                    let freq = freq.entry(*card).and_modify(|x| *x += 1).or_insert(1);
-                    if *freq > max_freq {
-                        max_freq = *freq;
-                        max_card = card;
+                    freq[discrim] += 1;
+                    if freq[discrim] > max_freq {
+                        max_freq = freq[discrim];
+                        max_discrim = discrim;
                     }
                 }
             }
@@ -84,9 +84,7 @@ impl HandKind {
         // distribute jokers
         if max_freq > 0 {
             // have jokers mimic the highest freq card
-            if let Some(x) = freq.get_mut(max_card) {
-                *x += freq_jokers;
-            }
+            freq[max_discrim] += freq_jokers;
         } else {
             // its a hand of five jokers, so five of a kind
             return Self::FiveOfAKind;
@@ -94,7 +92,7 @@ impl HandKind {
 
         let mut num_pairs = 0;
         let mut num_triples = 0;
-        for val in freq.values() {
+        for val in freq {
             match val {
                 5 => return Self::FiveOfAKind,
                 4 => return Self::FourOfAKind,
