@@ -1,6 +1,7 @@
 use criterion::criterion_main;
 
 use aoc_benchmarking::aoc_benches;
+use camel_cards::CamelCards;
 use cube_conundrum::CubeConundrum;
 use gear_ratios::GearRatios;
 use if_you_give_a_seed_a_fertilizer::IfYouGiveASeedAFertilizer;
@@ -47,8 +48,7 @@ aoc_benches! {
         day_005,
         "../day-005-if-you-give-a-seed-a-fertilizer/input.txt",
         IfYouGiveASeedAFertilizer,
-        "Part 1",
-        "Part 2"
+        "Combined (including parsing)"
     ),
     (
         day_006,
@@ -56,6 +56,12 @@ aoc_benches! {
         WaitForIt,
         "Part 1",
         "Part 2"
+    ),
+    (
+        day_007,
+        "../day-007-camel-cards/input.txt",
+        CamelCards,
+        "Combined (including parsing)"
     ),
     // bench_marker
 }
