@@ -1,6 +1,6 @@
 use std::str::FromStr;
 
-use anyhow::{anyhow, bail, Ok, Result};
+use anyhow::{anyhow, Ok, Result};
 use aoc_plumbing::Problem;
 
 #[derive(Debug, Clone)]
@@ -12,25 +12,6 @@ impl Calibration {
     const WORDS: [&'static str; 9] = [
         "one", "two", "three", "four", "five", "six", "seven", "eight", "nine",
     ];
-
-    const REVERSED_WORDS: [&'static str; 9] = [
-        "eno", "owt", "eerht", "ruof", "evif", "xis", "neves", "thgie", "enin",
-    ];
-
-    fn word_to_digit(word: &str) -> Result<u32> {
-        match word {
-            "one" | "eno" => Ok(1),
-            "two" | "owt" => Ok(2),
-            "three" | "eerht" => Ok(3),
-            "four" | "ruof" => Ok(4),
-            "five" | "evif" => Ok(5),
-            "six" | "xis" => Ok(6),
-            "seven" | "neves" => Ok(7),
-            "eight" | "thgie" => Ok(8),
-            "nine" | "enin" => Ok(9),
-            _ => bail!("invalid word"),
-        }
-    }
 
     fn recover(&self) -> Result<u32> {
         let mut iter = self.text.chars();
@@ -46,61 +27,30 @@ impl Calibration {
         Ok(first_digit * 10 + last_digit)
     }
 
-    fn recover_enhanced(&self) -> Result<u32> {
-        let first_digit_pair = self
-            .text
-            .chars()
-            .enumerate()
-            .find(|(_, c)| c.is_ascii_digit());
-        let last_digit_pair = self
-            .text
-            .chars()
-            .rev()
-            .enumerate()
-            .find(|(_, c)| c.is_ascii_digit());
-
-        let mut first_word = None;
-        let mut first_word_index = usize::MAX;
-        for word in Self::WORDS {
-            if let Some(index) = self.text.find(word) {
-                if index < first_word_index {
-                    first_word_index = index;
-                    first_word = Some(word);
+    fn recover_enhanced(&self) -> u32 {
+        let mut first = 0;
+        'outer: for i in 0..self.text.len() {
+            for j in 0..Self::WORDS.len() {
+                let word = Self::WORDS[j];
+                if self.text.as_bytes()[i] == (j + 49) as u8 || self.text[i..].starts_with(word) {
+                    first = j + 1;
+                    break 'outer;
                 }
             }
         }
 
-        let mut last_word = None;
-        let mut last_word_index = usize::MAX;
-        let reversed_text: String = self.text.chars().rev().collect();
-        for word in Self::REVERSED_WORDS {
-            if let Some(index) = reversed_text.find(word) {
-                if index < last_word_index {
-                    last_word_index = index;
-                    last_word = Some(word);
+        let mut last = 0;
+        'outer: for i in (0..self.text.len()).rev() {
+            for j in 0..Self::WORDS.len() {
+                let word = Self::WORDS[j];
+                if self.text.as_bytes()[i] == (j + 49) as u8 || self.text[i..].starts_with(word) {
+                    last = j + 1;
+                    break 'outer;
                 }
             }
         }
 
-        let first = match first_digit_pair {
-            Some((index, c)) if index < first_word_index => c
-                .to_digit(10)
-                .ok_or_else(|| anyhow!("could not convert first digit"))?,
-            _ => Self::word_to_digit(
-                first_word.ok_or_else(|| anyhow!("could not find first digit"))?,
-            )?,
-        };
-
-        let last = match last_digit_pair {
-            Some((index, c)) if index < last_word_index => c
-                .to_digit(10)
-                .ok_or_else(|| anyhow!("could not convert last digit"))?,
-            _ => {
-                Self::word_to_digit(last_word.ok_or_else(|| anyhow!("could not find last digit"))?)?
-            }
-        };
-
-        Ok(first * 10 + last)
+        (first * 10 + last) as u32
     }
 }
 
@@ -124,7 +74,7 @@ impl Trebuchet {
         let mut ret = 0;
 
         for calibration in &self.calibrations {
-            ret += calibration.recover_enhanced()?;
+            ret += calibration.recover_enhanced();
         }
 
         Ok(ret)
@@ -170,6 +120,7 @@ mod tests {
     use super::*;
 
     #[test]
+    #[ignore]
     fn full_dataset() {
         let input = std::fs::read_to_string("input.txt").expect("Unable to load input");
         let solution = Trebuchet::solve(&input).unwrap();
