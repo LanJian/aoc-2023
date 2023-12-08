@@ -10,6 +10,7 @@ use clap::{Args, CommandFactory, Parser, Subcommand};
 use clap_complete::{generate, shells::Zsh};
 use cube_conundrum::CubeConundrum;
 use gear_ratios::GearRatios;
+use haunted_wasteland::HauntedWasteland;
 use if_you_give_a_seed_a_fertilizer::IfYouGiveASeedAFertilizer;
 use scratchcards::Scratchcards;
 use trebuchet::Trebuchet;
@@ -178,5 +179,6 @@ generate_cli! {
     (IfYouGiveASeedAFertilizer, 5),
     (WaitForIt, 6),
     (CamelCards, 7),
+    (HauntedWasteland, 8),
     // command_marker
 }

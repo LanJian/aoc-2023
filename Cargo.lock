@@ -80,6 +80,7 @@ dependencies = [
  "criterion",
  "cube-conundrum",
  "gear-ratios",
+ "haunted-wasteland",
  "if-you-give-a-seed-a-fertilizer",
  "scratchcards",
  "trebuchet",
@@ -97,6 +98,7 @@ dependencies = [
  "clap_complete",
  "cube-conundrum",
  "gear-ratios",
+ "haunted-wasteland",
  "if-you-give-a-seed-a-fertilizer",
  "scratchcards",
  "serde",
@@ -355,6 +357,19 @@ name = "half"
 version = "1.8.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "eabb4a44450da02c90444cf74558da904edde8fb4e9035a9a6a4e15445af0bd7"
+
+[[package]]
+name = "haunted-wasteland"
+version = "0.1.0"
+dependencies = [
+ "anyhow",
+ "aoc-common",
+ "aoc-plumbing",
+ "nom",
+ "rayon",
+ "rustc-hash",
+ "serde",
+]
 
 [[package]]
 name = "heck"
