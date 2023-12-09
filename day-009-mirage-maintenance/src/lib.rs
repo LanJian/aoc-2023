@@ -1,3 +1,4 @@
+use rayon::prelude::*;
 use std::str::FromStr;
 
 use anyhow::{bail, Result};
@@ -6,12 +7,15 @@ use aoc_plumbing::Problem;
 #[derive(Debug, Clone)]
 struct History {
     values: Vec<i64>,
+    next_value: i64,
+    prev_value: i64,
+    processed: bool,
 }
 
 impl History {
-    fn next_value_helper(values: &[i64]) -> Result<i64> {
+    fn edge_values_helper(values: &[i64]) -> Result<(i64, i64)> {
         if values.iter().all(|x| *x == 0) {
-            return Ok(0);
+            return Ok((0, 0));
         }
 
         if values.len() < 2 {
@@ -23,33 +27,26 @@ impl History {
             next_values.push(values[i] - values[i - 1]);
         }
 
-        Ok(values[values.len() - 1] + Self::next_value_helper(&next_values)?)
+        let result = Self::edge_values_helper(&next_values)?;
+        let prev_value = values[0] - result.0;
+        let next_value = values[values.len() - 1] + result.1;
+        Ok((prev_value, next_value))
     }
 
-    fn prev_value_helper(values: &[i64]) -> Result<i64> {
-        if values.iter().all(|x| *x == 0) {
-            return Ok(0);
+    fn edge_values(&mut self) -> Result<(i64, i64)> {
+        if !self.processed {
+            let (prev_value, next_value) = Self::edge_values_helper(&self.values)?;
+            self.prev_value = prev_value;
+            self.next_value = next_value;
+            self.processed = true;
         }
 
-        if values.len() < 2 {
-            bail!("not enough values");
-        }
-
-        let mut prev_values = Vec::default();
-        for i in 1..values.len() {
-            prev_values.push(values[i] - values[i - 1]);
-        }
-
-        Ok(values[0] - Self::prev_value_helper(&prev_values)?)
+        Ok((self.prev_value, self.next_value))
     }
 
-    fn next_value(&self) -> Result<i64> {
-        Self::next_value_helper(&self.values)
-    }
-
-    fn prev_value(&self) -> Result<i64> {
-        Self::prev_value_helper(&self.values)
-    }
+    //fn prev_value(&self) -> Result<i64> {
+    //Self::prev_value_helper(&self.values)
+    //}
 }
 
 impl FromStr for History {
@@ -61,6 +58,9 @@ impl FromStr for History {
                 .split_whitespace()
                 .map(|x| x.parse())
                 .collect::<Result<Vec<_>, _>>()?,
+            next_value: 0,
+            prev_value: 0,
+            processed: false,
         })
     }
 }
@@ -95,8 +95,8 @@ impl Problem for MirageMaintenance {
     fn part_one(&mut self) -> Result<Self::P1, Self::ProblemError> {
         Ok(self
             .histories
-            .iter()
-            .map(|x| x.next_value())
+            .par_iter_mut()
+            .map(|x| x.edge_values().map(|(_, x)| x))
             .collect::<Result<Vec<_>, _>>()?
             .iter()
             .sum())
@@ -105,8 +105,8 @@ impl Problem for MirageMaintenance {
     fn part_two(&mut self) -> Result<Self::P2, Self::ProblemError> {
         Ok(self
             .histories
-            .iter()
-            .map(|x| x.prev_value())
+            .par_iter_mut()
+            .map(|x| x.edge_values().map(|(x, _)| x))
             .collect::<Result<Vec<_>, _>>()?
             .iter()
             .sum())

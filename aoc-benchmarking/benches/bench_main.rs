@@ -76,8 +76,7 @@ aoc_benches! {
         day_009,
         "../day-009-mirage-maintenance/input.txt",
         MirageMaintenance,
-        "Part 1",
-        "Part 2"
+        "Combined (including parsing)"
     ),
     // bench_marker
 }
