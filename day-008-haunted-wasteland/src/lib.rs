@@ -1,8 +1,8 @@
-use std::str::FromStr;
-use rayon::prelude::*;
 use anyhow::{anyhow, bail};
 use aoc_plumbing::Problem;
+use rayon::prelude::*;
 use rustc_hash::FxHashMap;
+use std::str::FromStr;
 
 fn label_to_id(label: &str) -> u32 {
     label.bytes().fold(0, |a, c| a << 8 | c as u32)
