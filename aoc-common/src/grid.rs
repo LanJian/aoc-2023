@@ -1,7 +1,11 @@
+use std::fmt;
+use std::str::FromStr;
 use std::{
     convert::TryFrom,
     ops::{Index, IndexMut},
 };
+
+use crate::direction::CardinalDirection;
 
 #[derive(Debug, PartialEq, Eq, Clone, Copy, Hash, Default)]
 pub struct Coordinate(pub isize, pub isize);
@@ -96,6 +100,16 @@ impl Coordinate {
         ]
     }
 
+    /// Returns the neighbour to the given direction
+    pub fn neighbour(&self, direction: &CardinalDirection) -> Self {
+        match direction {
+            CardinalDirection::North => self.north(),
+            CardinalDirection::South => self.south(),
+            CardinalDirection::West => self.west(),
+            CardinalDirection::East => self.east(),
+        }
+    }
+
     pub fn manhattan_distance(&self, other: &Self) -> usize {
         other.0.abs_diff(self.0) + other.1.abs_diff(self.1)
     }
@@ -106,6 +120,26 @@ pub struct Grid<T> {
     pub grid: Vec<Vec<T>>,
     pub n: usize,
     pub m: usize,
+}
+
+impl<T> FromStr for Grid<T>
+where
+    T: TryFrom<char>,
+{
+    type Err = T::Error;
+
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
+        let grid = s
+            .lines()
+            .map(|line| {
+                line.chars()
+                    .map(|c| T::try_from(c))
+                    .collect::<Result<Vec<T>, T::Error>>()
+            })
+            .collect::<Result<Vec<Vec<T>>, T::Error>>()?;
+
+        Ok(grid.into())
+    }
 }
 
 impl<T> TryFrom<&[String]> for Grid<T>
@@ -150,6 +184,22 @@ impl<T> IndexMut<Coordinate> for Grid<T> {
     }
 }
 
+impl<T> fmt::Display for Grid<T>
+where
+    T: fmt::Display,
+{
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        for i in 0..self.n {
+            for j in 0..self.m {
+                write!(f, "{}", self[(i, j).into()])?;
+            }
+            writeln!(f)?;
+        }
+
+        Ok(())
+    }
+}
+
 impl<T> Grid<T>
 where
     T: Copy + PartialEq,
@@ -159,6 +209,14 @@ where
             grid: vec![vec![default; m]; n],
             n,
             m,
+        }
+    }
+
+    pub fn get(&self, coord: Coordinate) -> Option<T> {
+        if self.is_in_bounds(coord) {
+            Some(self[coord])
+        } else {
+            None
         }
     }
 
@@ -176,7 +234,7 @@ where
         }
     }
 
-    pub fn find_index(&self, pred: impl Fn(&T) -> bool) -> Option<Coordinate> {
+    pub fn find_coordinate(&self, pred: impl Fn(&T) -> bool) -> Option<Coordinate> {
         for i in 0..self.n {
             for j in 0..self.m {
                 if pred(&self.grid[i][j]) {

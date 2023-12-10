@@ -7,6 +7,7 @@ use gear_ratios::GearRatios;
 use haunted_wasteland::HauntedWasteland;
 use if_you_give_a_seed_a_fertilizer::IfYouGiveASeedAFertilizer;
 use mirage_maintenance::MirageMaintenance;
+use pipe_maze::PipeMaze;
 use scratchcards::Scratchcards;
 use trebuchet::Trebuchet;
 use wait_for_it::WaitForIt;
@@ -77,6 +78,13 @@ aoc_benches! {
         "../day-009-mirage-maintenance/input.txt",
         MirageMaintenance,
         "Combined (including parsing)"
+    ),
+    (
+        day_010,
+        "../day-010-pipe-maze/input.txt",
+        PipeMaze,
+        "Part 1",
+        "Part 2"
     ),
     // bench_marker
 }
