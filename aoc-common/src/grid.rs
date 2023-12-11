@@ -1,4 +1,4 @@
-use std::fmt;
+use std::fmt::{self, Debug};
 use std::str::FromStr;
 use std::{
     convert::TryFrom,
@@ -7,7 +7,7 @@ use std::{
 
 use crate::direction::CardinalDirection;
 
-#[derive(Debug, PartialEq, Eq, Clone, Copy, Hash, Default)]
+#[derive(PartialEq, Eq, Clone, Copy, Hash, Default)]
 pub struct Coordinate(pub isize, pub isize);
 
 impl From<(usize, usize)> for Coordinate {
@@ -19,6 +19,12 @@ impl From<(usize, usize)> for Coordinate {
 impl From<(isize, isize)> for Coordinate {
     fn from(coords: (isize, isize)) -> Self {
         Coordinate(coords.0, coords.1)
+    }
+}
+
+impl Debug for Coordinate {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        write!(f, "({}, {})", self.0, self.1)
     }
 }
 

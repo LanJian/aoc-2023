@@ -2,6 +2,7 @@ use criterion::criterion_main;
 
 use aoc_benchmarking::aoc_benches;
 use camel_cards::CamelCards;
+use cosmic_expansion::CosmicExpansion;
 use cube_conundrum::CubeConundrum;
 use gear_ratios::GearRatios;
 use haunted_wasteland::HauntedWasteland;
@@ -83,6 +84,13 @@ aoc_benches! {
         day_010,
         "../day-010-pipe-maze/input.txt",
         PipeMaze,
+        "Part 1",
+        "Part 2"
+    ),
+    (
+        day_011,
+        "../day-011-cosmic-expansion/input.txt",
+        CosmicExpansion,
         "Part 1",
         "Part 2"
     ),
