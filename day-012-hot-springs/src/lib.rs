@@ -95,7 +95,7 @@ impl Record {
                 // if there is still any damaged spring, then it's impossible
                 return 0;
             } else {
-                // otherwise there are no more groups to fill, and no outstanding damaged springs,
+                // otherwise there are no more groups to match, and no outstanding damaged springs,
                 // so this is one arrangement
                 return 1;
             }
@@ -108,33 +108,33 @@ impl Record {
 
         let mut ret = 0;
 
-        // fill the group now
+        // match the group now
         if self.all_potentially_damaged(&springs[0..group]) {
             if group == springs.len() {
-                // if this fills all the way to the end...
+                // if this matches all the way to the end...
                 if groups.len() == 1 {
-                    // and there are no more groups to fill, then this is one arrangement
+                    // and there are no more groups to match, then this is one arrangement
                     return 1;
                 } else {
-                    // but there are more groups to fill, then it's impossible
+                    // but there are more groups to match, then it's impossible
                     return 0;
                 }
             } else if springs[group].potentially_operational() {
-                // we can fill this group here, so we recur starting from after the filled group
+                // we can match this group here, so we recur starting from after the matched group
                 // plus one buffer space
                 ret += self.arrangements_helper(&springs[group + 1..], &groups[1..], memo);
             }
-            // otherwise we cannot fill the group here, so we will kick in down the line
+            // otherwise we cannot match the group here, so we will kick in down the line
         }
 
         // or kick it down the line
         if !springs[0].damaged() {
             // we can only kick it if the leading spring is not damaged. if it is damaged, then
-            // we have to fill the group now
+            // we have to match the group now
             ret += self.arrangements_helper(&springs[1..], groups, memo);
         }
 
-        memo.insert((springs.len(), groups.len()), ret);
+        memo.insert(key, ret);
         ret
     }
 
