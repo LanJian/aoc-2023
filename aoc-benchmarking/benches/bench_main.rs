@@ -12,6 +12,7 @@ use pipe_maze::PipeMaze;
 use scratchcards::Scratchcards;
 use trebuchet::Trebuchet;
 use wait_for_it::WaitForIt;
+use hot_springs::HotSprings;
 // import_marker
 
 criterion_main! {
@@ -91,6 +92,13 @@ aoc_benches! {
         day_011,
         "../day-011-cosmic-expansion/input.txt",
         CosmicExpansion,
+        "Part 1",
+        "Part 2"
+    ),
+    (
+        day_012,
+        "../day-012-hot-springs/input.txt",
+        HotSprings,
         "Part 1",
         "Part 2"
     ),

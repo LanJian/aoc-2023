@@ -18,6 +18,7 @@ use pipe_maze::PipeMaze;
 use scratchcards::Scratchcards;
 use trebuchet::Trebuchet;
 use wait_for_it::WaitForIt;
+use hot_springs::HotSprings;
 // import_marker
 
 // I'm not proud
@@ -186,5 +187,6 @@ generate_cli! {
     (MirageMaintenance, 9),
     (PipeMaze, 10),
     (CosmicExpansion, 11),
+    (HotSprings, 12),
     // command_marker
 }
