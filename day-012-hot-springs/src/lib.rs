@@ -107,7 +107,7 @@ impl Record {
                 let mut new_acc = acc.clone();
                 new_acc.extend(vec![Spring::Damaged; group]);
                 new_acc.push(Spring::Operational);
-                return self.arrangements_helper(&springs[group+1..], &groups[1..], new_acc);
+                ret += self.arrangements_helper(&springs[group+1..], &groups[1..], new_acc);
             }
             // otherwise we cannot fill the group here, so we will kick in down the line
         }
@@ -118,7 +118,7 @@ impl Record {
             // we have to fill the group now
             let mut new_acc = acc.clone();
             new_acc.push(springs[0]);
-            return self.arrangements_helper(&springs[1..], groups, new_acc);
+            ret += self.arrangements_helper(&springs[1..], groups, new_acc);
         }
 
         ret
