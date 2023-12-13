@@ -86,6 +86,7 @@ dependencies = [
  "if-you-give-a-seed-a-fertilizer",
  "mirage-maintenance",
  "pipe-maze",
+ "point-of-incidence",
  "scratchcards",
  "trebuchet",
  "wait-for-it",
@@ -108,6 +109,7 @@ dependencies = [
  "if-you-give-a-seed-a-fertilizer",
  "mirage-maintenance",
  "pipe-maze",
+ "point-of-incidence",
  "scratchcards",
  "serde",
  "serde_json",
@@ -584,6 +586,19 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "38f6d39893cca0701371e3c27294f09797214b86f1fb951b89ade8ec04e2abab"
 dependencies = [
  "plotters-backend",
+]
+
+[[package]]
+name = "point-of-incidence"
+version = "0.1.0"
+dependencies = [
+ "anyhow",
+ "aoc-common",
+ "aoc-plumbing",
+ "nom",
+ "rayon",
+ "rustc-hash",
+ "serde",
 ]
 
 [[package]]

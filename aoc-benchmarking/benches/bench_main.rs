@@ -10,6 +10,7 @@ use hot_springs::HotSprings;
 use if_you_give_a_seed_a_fertilizer::IfYouGiveASeedAFertilizer;
 use mirage_maintenance::MirageMaintenance;
 use pipe_maze::PipeMaze;
+use point_of_incidence::PointOfIncidence;
 use scratchcards::Scratchcards;
 use trebuchet::Trebuchet;
 use wait_for_it::WaitForIt;
@@ -101,6 +102,12 @@ aoc_benches! {
         HotSprings,
         "Part 1",
         "Part 2"
+    ),
+    (
+        day_013,
+        "../day-013-point-of-incidence/input.txt",
+        PointOfIncidence,
+        "Combined (including parsing)"
     ),
     // bench_marker
 }
