@@ -9,18 +9,18 @@ use rayon::prelude::*;
 struct Pattern {
     rows: Vec<u32>,
     cols: Vec<u32>,
-    original_inflection: usize,
+    original_inflection: Option<usize>,
 }
 
 impl Pattern {
-    fn inflection_with_smudge(&mut self) -> usize {
+    fn inflection_with_smudge(&mut self) -> Option<usize> {
         for i in 0..self.rows.len() {
             for j in 0..self.cols.len() {
                 self.rows[i] ^= 1 << (self.cols.len() - j - 1);
                 self.cols[j] ^= 1 << (self.rows.len() - i - 1);
 
                 let result = self.inflection();
-                if result != self.original_inflection && result > 0 {
+                if result.is_some() && result != self.original_inflection {
                     return result;
                 }
 
@@ -29,99 +29,34 @@ impl Pattern {
             }
         }
 
-        0
+        None
     }
 
-    fn inflection(&self) -> usize {
-        let mut ret = 0;
-        let mut j = 0;
-        let mut reflecting = false;
+    fn inflection(&self) -> Option<usize> {
+        self.inflection_helper(&self.rows, 100)
+            .or_else(|| self.inflection_helper(&self.cols, 1))
+    }
 
-        for (i, &x) in self.rows.iter().enumerate().skip(1) {
-            if reflecting {
-                if x == self.rows[j] {
-                    if j == 0 {
-                        if 100 * ret == self.original_inflection {
-                            reflecting = false;
-                            j = 0;
-                            ret = 0;
-                        } else {
-                            return 100 * ret;
-                        }
-                    }
-                    j -= 1;
-                } else {
-                    reflecting = false;
-                    ret = 0;
+    fn inflection_helper(&self, slice: &[u32], factor: usize) -> Option<usize> {
+        let n = slice.len();
+
+        for i in 1..=slice.len() / 2 {
+            if (0..i).all(|j| slice[j] == slice[2 * i - j - 1]) {
+                let ret = Some(factor * i);
+                if ret != self.original_inflection {
+                    return ret;
                 }
             }
 
-            if x == self.rows[i - 1] {
-                ret = i;
-                j = i - 1;
-                reflecting = true;
-
-                if j == 0 {
-                    if 100 == self.original_inflection {
-                        reflecting = false;
-                        j = 0;
-                        ret = 0;
-                    } else {
-                        return 100;
-                    }
+            if (0..i).all(|j| slice[n - i + j] == slice[n - i - 1 - j]) {
+                let ret = Some(factor * (n - i));
+                if ret != self.original_inflection {
+                    return ret;
                 }
-
-                j -= 1;
             }
         }
 
-        if ret > 0 && 100 * ret != self.original_inflection {
-            return 100 * ret;
-        }
-
-        reflecting = false;
-        j = 0;
-        ret = 0;
-
-        for (i, &x) in self.cols.iter().enumerate().skip(1) {
-            if reflecting {
-                if x == self.cols[j] {
-                    if j == 0 {
-                        if ret == self.original_inflection {
-                            reflecting = false;
-                            j = 0;
-                            ret = 0;
-                        } else {
-                            return ret;
-                        }
-                    }
-                    j -= 1;
-                } else {
-                    reflecting = false;
-                    ret = 0;
-                }
-            }
-
-            if x == self.cols[i - 1] {
-                ret = i;
-                j = i - 1;
-                reflecting = true;
-
-                if j == 0 {
-                    if 1 == self.original_inflection {
-                        reflecting = false;
-                        j = 0;
-                        ret = 0;
-                    } else {
-                        return 1;
-                    }
-                }
-
-                j -= 1;
-            }
-        }
-
-        ret
+        None
     }
 }
 
@@ -171,7 +106,7 @@ impl FromStr for Pattern {
         Ok(Self {
             rows,
             cols,
-            original_inflection: 0,
+            original_inflection: None,
         })
     }
 }
@@ -207,8 +142,12 @@ impl Problem for PointOfIncidence {
         for pattern in self.patterns.iter_mut() {
             let result = pattern.inflection();
             pattern.original_inflection = result;
-            sum += result;
+
+            if let Some(x) = result {
+                sum += x;
+            }
         }
+
         Ok(sum)
     }
 
@@ -216,7 +155,7 @@ impl Problem for PointOfIncidence {
         Ok(self
             .patterns
             .par_iter_mut()
-            .map(|x| x.inflection_with_smudge())
+            .map(|x| x.inflection_with_smudge().unwrap_or_default())
             .sum())
     }
 }
@@ -272,5 +211,33 @@ mod tests {
 
         let solution = PointOfIncidence::solve(input).unwrap();
         assert_eq!(solution, Solution::new(1008, 1000));
+    }
+
+    #[test]
+    fn example_three() {
+        let input = "....#.#.#.##..#
+##...#..#..#.##
+####.##..##..##
+#.###.#.##.#.#.
+..#.##.#...####
+..#.##.#...####
+#.###.#.##...#.
+#.#..#..###...#
+#.#..#..###...#
+#.###.#.##...#.
+..#.##.#...####
+..#.##.#...####
+#.###.#.##.#.#.
+
+.....#..##..#
+##...########
+.#.#....##...
+#.#.#........
+.#...########
+...##########
+######..##..#";
+
+        let solution = PointOfIncidence::solve(input).unwrap();
+        assert_eq!(solution, Solution::new(809, 1111));
     }
 }
