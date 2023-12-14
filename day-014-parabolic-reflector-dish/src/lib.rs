@@ -64,7 +64,7 @@ impl ParabolicReflectorDish {
     }
     fn cycle(&mut self, cycles: usize) {
         let mut cache = FxHashMap::default();
-        let mut loads = Vec::with_capacity(500);
+        let mut key = u128::MAX;
         let mut period = 0;
         let mut start = 0;
 
@@ -75,15 +75,12 @@ impl ParabolicReflectorDish {
             self.tilt(CardinalDirection::South);
             self.tilt(CardinalDirection::East);
 
+            // keep a key of the last 5 loads
+            key = key << 32 | self.total_load() as u128;
+
             if i == cycles - 1 {
                 return;
             }
-
-            // make a key from last 4 loads
-            loads.push(self.total_load());
-            let key: u128 = loads[loads.len().saturating_sub(4)..]
-                .iter()
-                .fold(0, |a, e| a << 32 | (*e) as u128);
 
             if let Some(&x) = cache.get(&key) {
                 period = i - x;
