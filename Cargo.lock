@@ -84,6 +84,7 @@ dependencies = [
  "haunted-wasteland",
  "hot-springs",
  "if-you-give-a-seed-a-fertilizer",
+ "lens-library",
  "mirage-maintenance",
  "parabolic-reflector-dish",
  "pipe-maze",
@@ -108,6 +109,7 @@ dependencies = [
  "haunted-wasteland",
  "hot-springs",
  "if-you-give-a-seed-a-fertilizer",
+ "lens-library",
  "mirage-maintenance",
  "parabolic-reflector-dish",
  "pipe-maze",
@@ -465,6 +467,18 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "cee9c64da59eae3b50095c18d3e74f8b73c0b86d2792824ff01bbce68ba229ca"
 dependencies = [
  "wasm-bindgen",
+]
+
+[[package]]
+name = "lens-library"
+version = "0.1.0"
+dependencies = [
+ "anyhow",
+ "aoc-common",
+ "aoc-plumbing",
+ "nom",
+ "rustc-hash",
+ "serde",
 ]
 
 [[package]]

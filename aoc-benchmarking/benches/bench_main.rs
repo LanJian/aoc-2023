@@ -8,6 +8,7 @@ use gear_ratios::GearRatios;
 use haunted_wasteland::HauntedWasteland;
 use hot_springs::HotSprings;
 use if_you_give_a_seed_a_fertilizer::IfYouGiveASeedAFertilizer;
+use lens_library::LensLibrary;
 use mirage_maintenance::MirageMaintenance;
 use parabolic_reflector_dish::ParabolicReflectorDish;
 use pipe_maze::PipeMaze;
@@ -115,6 +116,13 @@ aoc_benches! {
         "../day-014-parabolic-reflector-dish/input.txt",
         ParabolicReflectorDish,
         "Combined (including parsing)"
+    ),
+    (
+        day_015,
+        "../day-015-lens-library/input.txt",
+        LensLibrary,
+        "Part 1",
+        "Part 2"
     ),
     // bench_marker
 }
