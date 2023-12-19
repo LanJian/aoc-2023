@@ -20,6 +20,7 @@ use parabolic_reflector_dish::ParabolicReflectorDish;
 use pipe_maze::PipeMaze;
 use point_of_incidence::PointOfIncidence;
 use scratchcards::Scratchcards;
+use the_floor_will_be_lava::TheFloorWillBeLava;
 use trebuchet::Trebuchet;
 use wait_for_it::WaitForIt;
 // import_marker
@@ -194,5 +195,6 @@ generate_cli! {
     (PointOfIncidence, 13),
     (ParabolicReflectorDish, 14),
     (LensLibrary, 15),
+    (TheFloorWillBeLava, 16),
     // command_marker
 }

@@ -90,6 +90,7 @@ dependencies = [
  "pipe-maze",
  "point-of-incidence",
  "scratchcards",
+ "the-floor-will-be-lava",
  "trebuchet",
  "wait-for-it",
 ]
@@ -117,6 +118,7 @@ dependencies = [
  "scratchcards",
  "serde",
  "serde_json",
+ "the-floor-will-be-lava",
  "trebuchet",
  "wait-for-it",
 ]
@@ -804,6 +806,18 @@ checksum = "21bebf2b7c9e0a515f6e0f8c51dc0f8e4696391e6f1ff30379559f8365fb0df7"
 dependencies = [
  "rustix",
  "windows-sys 0.48.0",
+]
+
+[[package]]
+name = "the-floor-will-be-lava"
+version = "0.1.0"
+dependencies = [
+ "anyhow",
+ "aoc-common",
+ "aoc-plumbing",
+ "nom",
+ "rustc-hash",
+ "serde",
 ]
 
 [[package]]

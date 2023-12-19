@@ -14,6 +14,7 @@ use parabolic_reflector_dish::ParabolicReflectorDish;
 use pipe_maze::PipeMaze;
 use point_of_incidence::PointOfIncidence;
 use scratchcards::Scratchcards;
+use the_floor_will_be_lava::TheFloorWillBeLava;
 use trebuchet::Trebuchet;
 use wait_for_it::WaitForIt;
 // import_marker
@@ -123,6 +124,12 @@ aoc_benches! {
         LensLibrary,
         "Part 1",
         "Part 2"
+    ),
+    (
+        day_016,
+        "../day-016-the-floor-will-be-lava/input.txt",
+        TheFloorWillBeLava,
+        "Combined (including parsing)"
     ),
     // bench_marker
 }
