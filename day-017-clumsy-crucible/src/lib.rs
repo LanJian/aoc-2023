@@ -45,7 +45,7 @@ impl Node {
 
 impl PartialOrd for Node {
     fn partial_cmp(&self, other: &Self) -> Option<std::cmp::Ordering> {
-        other.dist.partial_cmp(&self.dist)
+        Some(self.cmp(other))
     }
 }
 

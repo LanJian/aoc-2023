@@ -9,6 +9,7 @@ use gear_ratios::GearRatios;
 use haunted_wasteland::HauntedWasteland;
 use hot_springs::HotSprings;
 use if_you_give_a_seed_a_fertilizer::IfYouGiveASeedAFertilizer;
+use lavaduct_lagoon::LavaductLagoon;
 use lens_library::LensLibrary;
 use mirage_maintenance::MirageMaintenance;
 use parabolic_reflector_dish::ParabolicReflectorDish;
@@ -136,6 +137,13 @@ aoc_benches! {
         day_017,
         "../day-017-clumsy-crucible/input.txt",
         ClumsyCrucible,
+        "Part 1",
+        "Part 2"
+    ),
+    (
+        day_018,
+        "../day-018-lavaduct-lagoon/input.txt",
+        LavaductLagoon,
         "Part 1",
         "Part 2"
     ),

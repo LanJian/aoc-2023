@@ -19,4 +19,17 @@ impl CardinalDirection {
             Self::West => Self::East,
         }
     }
+
+    pub fn left(&self) -> Self {
+        match self {
+            Self::North => Self::West,
+            Self::South => Self::East,
+            Self::East => Self::North,
+            Self::West => Self::South,
+        }
+    }
+
+    pub fn right(&self) -> Self {
+        self.left().opposite()
+    }
 }
