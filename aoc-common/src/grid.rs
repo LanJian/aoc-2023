@@ -116,6 +116,15 @@ impl Coordinate {
         }
     }
 
+    /// Returns the coordinate that is the given steps away in the given direction
+    pub fn steps(&self, direction: &CardinalDirection, steps: usize) -> Self {
+        let mut ret = *self;
+        for _ in 0..steps {
+            ret = ret.neighbour(direction);
+        }
+        ret
+    }
+
     pub fn manhattan_distance(&self, other: &Self) -> usize {
         other.0.abs_diff(self.0) + other.1.abs_diff(self.1)
     }
