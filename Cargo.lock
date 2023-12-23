@@ -76,6 +76,7 @@ name = "aoc-benchmarking"
 version = "0.1.0"
 dependencies = [
  "aoc-plumbing",
+ "aplenty",
  "camel-cards",
  "clumsy-crucible",
  "cosmic-expansion",
@@ -103,6 +104,7 @@ version = "0.1.0"
 dependencies = [
  "anyhow",
  "aoc-plumbing",
+ "aplenty",
  "camel-cards",
  "clap",
  "clap_complete",
@@ -137,6 +139,18 @@ version = "0.1.0"
 dependencies = [
  "serde",
  "serde_json",
+]
+
+[[package]]
+name = "aplenty"
+version = "0.1.0"
+dependencies = [
+ "anyhow",
+ "aoc-common",
+ "aoc-plumbing",
+ "nom",
+ "rustc-hash",
+ "serde",
 ]
 
 [[package]]
