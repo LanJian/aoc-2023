@@ -16,6 +16,7 @@ use mirage_maintenance::MirageMaintenance;
 use parabolic_reflector_dish::ParabolicReflectorDish;
 use pipe_maze::PipeMaze;
 use point_of_incidence::PointOfIncidence;
+use pulse_propagation::PulsePropagation;
 use scratchcards::Scratchcards;
 use the_floor_will_be_lava::TheFloorWillBeLava;
 use trebuchet::Trebuchet;
@@ -152,6 +153,13 @@ aoc_benches! {
         day_019,
         "../day-019-aplenty/input.txt",
         Aplenty,
+        "Part 1",
+        "Part 2"
+    ),
+    (
+        day_020,
+        "../day-020-pulse-propagation/input.txt",
+        PulsePropagation,
         "Part 1",
         "Part 2"
     ),
