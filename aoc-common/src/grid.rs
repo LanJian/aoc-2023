@@ -29,6 +29,9 @@ impl Debug for Coordinate {
 }
 
 impl Coordinate {
+    pub fn new(row: isize, col: isize) -> Self {
+        Self(row, col)
+    }
     pub fn x(&self) -> isize {
         self.1
     }
