@@ -1,6 +1,6 @@
 use std::ops::{Add, Div, Mul, Neg, Sub};
 
-use num::{traits::real::Real, Num};
+use num::{Float, Num};
 
 #[derive(Default, Debug, Clone, Copy, PartialEq)]
 pub struct Vector3<T>
@@ -82,7 +82,7 @@ where
 
 impl<T> Vector3<T>
 where
-    T: Copy + Num + Real,
+    T: Copy + Num + Float,
 {
     pub fn magnitude(&self) -> T {
         self.norm().sqrt()

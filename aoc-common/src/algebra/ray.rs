@@ -1,4 +1,4 @@
-use num::traits::real::Real;
+use num::Float;
 use num::Num;
 
 use crate::algebra::Point3;
@@ -28,7 +28,7 @@ where
 
 impl<T> Ray<T>
 where
-    T: Copy + Num + Real,
+    T: Copy + Num + Float,
 {
     pub fn normalize(&self) -> Self {
         Ray::new(self.origin, self.dir.normalize())

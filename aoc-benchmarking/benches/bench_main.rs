@@ -176,8 +176,7 @@ aoc_benches! {
         day_022,
         "../day-022-sand-slabs/input.txt",
         SandSlabs,
-        "Part 1",
-        "Part 2"
+        "Combined (including parsing)"
     ),
     // bench_marker
 }

@@ -91,18 +91,9 @@ impl StepCounter {
         let mut visited = Grid::new(self.grid.n, self.grid.m, false);
         let mut q = VecDeque::default();
         q.push_back((start, 0));
+        visited[start] = true;
 
         while let Some((coord, dist)) = q.pop_front() {
-            if dist > steps
-                || !self.grid.is_in_bounds(coord)
-                || self.grid[coord] == Tile::Rock
-                || visited[coord]
-            {
-                continue;
-            }
-
-            visited[coord] = true;
-
             match parity {
                 Parity::Odd if dist % 2 == 1 => ret += 1,
                 Parity::Even if dist % 2 == 0 => ret += 1,
@@ -110,7 +101,14 @@ impl StepCounter {
             }
 
             for n in coord.cardinal_neighbours() {
-                q.push_back((n, dist + 1));
+                if dist < steps
+                    && self.grid.is_in_bounds(n)
+                    && self.grid[n] != Tile::Rock
+                    && !visited[n]
+                {
+                    q.push_back((n, dist + 1));
+                    visited[n] = true;
+                }
             }
         }
 

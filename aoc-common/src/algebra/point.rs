@@ -4,7 +4,7 @@ use num::Num;
 
 use super::Vector3;
 
-#[derive(Default, Debug, Clone, Copy, PartialEq)]
+#[derive(Default, Debug, Clone, Copy, PartialEq, Eq, Hash)]
 pub struct Point2<T>
 where
     T: Copy + Num,
@@ -28,6 +28,24 @@ where
 {
     fn from(p: [T; 2]) -> Self {
         Self::new(p[0], p[1])
+    }
+}
+
+impl<T> From<(T, T)> for Point2<T>
+where
+    T: Copy + Num,
+{
+    fn from(p: (T, T)) -> Self {
+        Self::new(p.0, p.1)
+    }
+}
+
+impl<T> From<Point3<T>> for Point2<T>
+where
+    T: Copy + Num,
+{
+    fn from(p: Point3<T>) -> Self {
+        Self::new(p.x, p.y)
     }
 }
 
