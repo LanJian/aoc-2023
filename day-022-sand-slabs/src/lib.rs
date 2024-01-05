@@ -3,6 +3,7 @@ use std::{collections::VecDeque, str::FromStr};
 use anyhow::bail;
 use aoc_common::algebra::{Point2, Point3};
 use aoc_plumbing::Problem;
+use rayon::prelude::*;
 use rustc_hash::{FxHashMap, FxHashSet};
 
 #[derive(Debug, Clone)]
@@ -124,7 +125,10 @@ impl SandSlabs {
     }
 
     fn remove(&self) -> usize {
-        self.cant_remove.iter().map(|x| self.remove_one(*x)).sum()
+        self.cant_remove
+            .par_iter()
+            .map(|x| self.remove_one(*x))
+            .sum()
     }
 
     fn remove_one(&self, to_remove: usize) -> usize {
