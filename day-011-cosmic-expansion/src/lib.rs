@@ -28,7 +28,7 @@ impl CosmicExpansion {
     fn total_distances(&self, expansion: usize) -> usize {
         let mut total = 0;
         for (i, a) in self.galaxies.iter().enumerate() {
-            for (_, b) in self.galaxies[i + 1..].iter().enumerate() {
+            for b in self.galaxies[i + 1..].iter() {
                 total += self.distance_between(a, b, expansion);
             }
         }
