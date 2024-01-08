@@ -31,7 +31,32 @@ impl TryFrom<char> for Tile {
     }
 }
 
-type Graph = FxHashMap<Coordinate, FxHashSet<(Coordinate, usize)>>;
+#[derive(Debug, Clone)]
+struct Node {
+    idx: usize,
+    coord: Coordinate,
+    neighbours: Vec<(usize, usize)>,
+}
+
+impl Node {
+    fn new(idx: usize, coord: Coordinate) -> Self {
+        Self {
+            idx,
+            coord,
+            neighbours: Vec::default(),
+        }
+    }
+}
+
+fn is_visited(idx: usize, visited: u64) -> bool {
+    1u64 << idx & visited > 0
+}
+
+fn visit(idx: usize, visited: u64) -> u64 {
+    visited | 1u64 << idx
+}
+
+type Graph = Vec<Node>;
 
 #[derive(Debug, Clone)]
 pub struct ALongWalk {
@@ -42,9 +67,9 @@ impl ALongWalk {
     fn find_vertices(&self) -> Graph {
         let n = self.grid.n;
         let m = self.grid.m;
-        let mut graph = FxHashMap::default();
-        graph.insert(Coordinate::new(0, 1), FxHashSet::default());
-        graph.insert((n - 1, m - 2).into(), FxHashSet::default());
+        let mut graph = Vec::default();
+        graph.push(Node::new(0, Coordinate::new(0, 1)));
+        graph.push(Node::new(1, (n - 1, m - 2).into()));
 
         for i in 1..n - 1 {
             for j in 1..m - 1 {
@@ -62,7 +87,7 @@ impl ALongWalk {
                     .count()
                     > 2
                 {
-                    graph.insert(coord, FxHashSet::default());
+                    graph.push(Node::new(graph.len(), coord));
                 }
             }
         }
@@ -74,23 +99,23 @@ impl ALongWalk {
         let n = self.grid.n;
         let m = self.grid.m;
         let mut graph = self.find_vertices();
-        let vertices: Vec<_> = graph.keys().cloned().collect();
         let mut visited = Grid::new(n, m, false);
         let mut q = VecDeque::default();
 
-        for vertex in vertices {
+        let coords_to_ids = FxHashMap::from_iter(graph.iter().map(|x| (x.coord, x.idx)));
+
+        for u in 0..graph.len() {
+            let node = &graph[u];
             q.clear();
-            q.push_back((vertex, 0));
+            q.push_back((node.coord, 0));
 
             while let Some((coord, dist)) = q.pop_front() {
-                if dist > 0 && graph.contains_key(&coord) {
-                    graph.entry(vertex).and_modify(|x| {
-                        x.insert((coord, dist));
-                    });
-                    graph.entry(coord).and_modify(|x| {
-                        x.insert((vertex, dist));
-                    });
-                    continue;
+                if let Some(&v) = coords_to_ids.get(&coord) {
+                    if dist > 0 {
+                        graph[u].neighbours.push((v, dist));
+                        graph[v].neighbours.push((u, dist));
+                        continue;
+                    }
                 }
 
                 visited[coord] = true;
@@ -108,38 +133,33 @@ impl ALongWalk {
 
     fn longest_path_flat(&self) -> Option<usize> {
         let graph = self.build_graph();
-        Self::longest_path_flat_helper(
-            (0isize, 1isize).into(),
-            (self.grid.n - 1, self.grid.m - 2).into(),
-            &graph,
-            &mut FxHashSet::default(),
-        )
+        let (penultimate, cost) = graph[1].neighbours[0];
+
+        Self::longest_path_flat_helper(0, penultimate, &graph, 0).map(|x| x + cost)
     }
 
     fn longest_path_flat_helper(
-        start: Coordinate,
-        end: Coordinate,
+        start: usize,
+        end: usize,
         graph: &Graph,
-        visited: &mut FxHashSet<Coordinate>,
+        visited: u64,
     ) -> Option<usize> {
         if start == end {
             return Some(0);
         }
 
-        if visited.contains(&start) {
+        if is_visited(start, visited) {
             return None;
         }
 
-        visited.insert(start);
-
-        let result = graph[&start]
+        let new_visited = visit(start, visited);
+        let result = graph[start]
+            .neighbours
             .iter()
             .filter_map(|&(vertex, cost)| {
-                Self::longest_path_flat_helper(vertex, end, graph, visited).map(|x| x + cost)
+                Self::longest_path_flat_helper(vertex, end, graph, new_visited).map(|x| x + cost)
             })
             .max();
-
-        visited.remove(&start);
 
         result
     }
