@@ -1,4 +1,4 @@
-use std::{collections::BinaryHeap, str::FromStr};
+use std::{collections::BinaryHeap, hash::Hash, str::FromStr};
 
 use anyhow::anyhow;
 use aoc_common::{
@@ -6,9 +6,9 @@ use aoc_common::{
     grid::{Coordinate, Grid},
 };
 use aoc_plumbing::Problem;
-use rustc_hash::{FxHashMap, FxHashSet};
+use rustc_hash::FxHashMap;
 
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+#[derive(Debug, Clone, Copy, Hash, PartialEq, Eq)]
 enum Orientation {
     Horizontal,
     Vertical,
@@ -41,6 +41,21 @@ impl TryFrom<char> for Block {
     }
 }
 
+#[derive(Debug, Clone, Copy, Hash, PartialEq, Eq)]
+struct MemoNode {
+    orientation: Orientation,
+    coord: Coordinate,
+}
+
+impl From<Node> for MemoNode {
+    fn from(value: Node) -> Self {
+        Self {
+            orientation: value.orientation,
+            coord: value.coord,
+        }
+    }
+}
+
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 struct Node {
     dist: usize,
@@ -50,55 +65,11 @@ struct Node {
 
 impl Node {
     pub fn new(dist: usize, orientation: Orientation, coord: Coordinate) -> Self {
-        Self { dist, orientation, coord }
-    }
-
-    fn key(&self) -> u32 {
-        (self.coord.row() as u32) << 24
-            | (self.coord.col() as u32) << 16
-            | (self.orientation as u32)
-    }
-
-    fn neighbours_helper(
-        &self,
-        min: usize,
-        max: usize,
-        dir: &Cardinal,
-        grid: &Grid<Block>,
-        ret: &mut Vec<Self>,
-    ) {
-        let orientation = self.orientation.opposite();
-        let mut dist = self.dist;
-
-        for i in 1..=max {
-            let coord = self.coord.steps(dir, i);
-
-            if !grid.is_in_bounds(coord) {
-                break;
-            }
-
-            dist += grid[coord].value;
-
-            if i < min {
-                continue;
-            }
-
-            ret.push(Self::new(dist, orientation, coord));
+        Self {
+            dist,
+            orientation,
+            coord,
         }
-    }
-
-    fn neighbours(&self, min: usize, max: usize, grid: &Grid<Block>) -> Vec<Self> {
-        let mut ret = Vec::default();
-
-        if self.orientation == Orientation::Horizontal {
-            self.neighbours_helper(min, max, &Cardinal::North, grid, &mut ret);
-            self.neighbours_helper(min, max, &Cardinal::South, grid, &mut ret);
-        } else {
-            self.neighbours_helper(min, max, &Cardinal::East, grid, &mut ret);
-            self.neighbours_helper(min, max, &Cardinal::West, grid, &mut ret);
-        }
-
-        ret
     }
 }
 
@@ -120,9 +91,60 @@ pub struct ClumsyCrucible {
 }
 
 impl ClumsyCrucible {
+    fn generate_neighbours_helper(
+        &self,
+        node: &Node,
+        min: usize,
+        max: usize,
+        dir: &Cardinal,
+        acc: &mut FxHashMap<MemoNode, usize>,
+        q: &mut BinaryHeap<Node>,
+    ) {
+        let orientation = node.orientation.opposite();
+        let mut dist = node.dist;
+
+        for i in 1..=max {
+            let coord = node.coord.steps(dir, i);
+
+            if !self.grid.is_in_bounds(coord) {
+                break;
+            }
+
+            dist += self.grid[coord].value;
+
+            if i < min {
+                continue;
+            }
+
+            let neighbour = Node::new(dist, orientation, coord);
+            let neighbour_memo = neighbour.into();
+
+            if dist < acc.get(&neighbour_memo).copied().unwrap_or(usize::MAX) {
+                acc.insert(neighbour_memo, neighbour.dist);
+                q.push(neighbour);
+            }
+        }
+    }
+
+    fn generate_neighbours(
+        &self,
+        node: &Node,
+        min: usize,
+        max: usize,
+        acc: &mut FxHashMap<MemoNode, usize>,
+        q: &mut BinaryHeap<Node>,
+    ) {
+        if node.orientation == Orientation::Horizontal {
+            self.generate_neighbours_helper(node, min, max, &Cardinal::North, acc, q);
+            self.generate_neighbours_helper(node, min, max, &Cardinal::South, acc, q);
+        } else {
+            self.generate_neighbours_helper(node, min, max, &Cardinal::East, acc, q);
+            self.generate_neighbours_helper(node, min, max, &Cardinal::West, acc, q);
+        }
+    }
+
     fn dijkstra_two(&self, min: usize, max: usize) -> usize {
-        let mut visited = FxHashSet::default();
-        let mut acc = FxHashMap::default();
+        let mut acc: FxHashMap<MemoNode, usize> = FxHashMap::default();
         let mut q: BinaryHeap<Node> = BinaryHeap::default();
 
         let start = (0_isize, 0_isize).into();
@@ -130,8 +152,8 @@ impl ClumsyCrucible {
 
         let node1 = Node::new(0, Orientation::Horizontal, start);
         let node2 = Node::new(0, Orientation::Vertical, start);
-        acc.insert(node1.key(), node1.dist);
-        acc.insert(node2.key(), node2.dist);
+        acc.insert(node1.into(), node1.dist);
+        acc.insert(node2.into(), node2.dist);
         q.push(node1);
         q.push(node2);
 
@@ -141,18 +163,11 @@ impl ClumsyCrucible {
                 return node.dist;
             }
 
-            if visited.contains(&node.key()) {
+            if acc.get(&node.into()).copied().unwrap_or(usize::MAX) < node.dist {
                 continue;
             }
 
-            visited.insert(node.key());
-
-            for neighbour in &node.neighbours(min, max, &self.grid) {
-                if neighbour.dist < *acc.get(&neighbour.key()).unwrap_or(&usize::MAX) {
-                    acc.insert(neighbour.key(), neighbour.dist);
-                    q.push(*neighbour);
-                }
-            }
+            self.generate_neighbours(&node, min, max, &mut acc, &mut q);
         }
 
         unreachable!()
