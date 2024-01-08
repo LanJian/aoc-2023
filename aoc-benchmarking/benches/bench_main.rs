@@ -21,6 +21,7 @@ use point_of_incidence::PointOfIncidence;
 use pulse_propagation::PulsePropagation;
 use sand_slabs::SandSlabs;
 use scratchcards::Scratchcards;
+use snowverload::Snowverload;
 use step_counter::StepCounter;
 use the_floor_will_be_lava::TheFloorWillBeLava;
 use trebuchet::Trebuchet;
@@ -193,6 +194,12 @@ aoc_benches! {
         NeverTellMeTheOdds,
         "Part 1",
         "Part 2"
+    ),
+    (
+        day_025,
+        "../day-025-snowverload/input.txt",
+        Snowverload,
+        "Combined (including parsing)"
     ),
     // bench_marker
 }
