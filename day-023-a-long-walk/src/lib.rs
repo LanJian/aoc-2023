@@ -6,7 +6,7 @@ use aoc_common::{
     grid::{Coordinate, Grid},
 };
 use aoc_plumbing::Problem;
-use rustc_hash::{FxHashMap, FxHashSet};
+use rustc_hash::FxHashMap;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 enum Tile {
