@@ -1,14 +1,14 @@
 use std::str::FromStr;
 
 use anyhow::bail;
-use aoc_common::{direction::CardinalDirection, grid::Coordinate};
+use aoc_common::{direction::Cardinal, grid::Coordinate};
 use aoc_plumbing::Problem;
 
 #[derive(Debug, Clone)]
 struct Plan {
-    dir: CardinalDirection,
+    dir: Cardinal,
     length: usize,
-    hex_dir: CardinalDirection,
+    hex_dir: Cardinal,
     hex_length: usize,
 }
 
@@ -19,10 +19,10 @@ impl FromStr for Plan {
         let mut tokens = s.split_whitespace();
 
         let dir = match tokens.next() {
-            Some("U") => CardinalDirection::North,
-            Some("D") => CardinalDirection::South,
-            Some("L") => CardinalDirection::West,
-            Some("R") => CardinalDirection::East,
+            Some("U") => Cardinal::North,
+            Some("D") => Cardinal::South,
+            Some("L") => Cardinal::West,
+            Some("R") => Cardinal::East,
             _ => bail!("invalid plan"),
         };
 
@@ -35,10 +35,10 @@ impl FromStr for Plan {
         if let Some(x) = tokens.next() {
             let hex_length = usize::from_str_radix(&x[2..7], 16)?;
             let hex_dir = match x.as_bytes()[7] {
-                b'0' => CardinalDirection::East,
-                b'1' => CardinalDirection::South,
-                b'2' => CardinalDirection::West,
-                b'3' => CardinalDirection::North,
+                b'0' => Cardinal::East,
+                b'1' => Cardinal::South,
+                b'2' => Cardinal::West,
+                b'3' => Cardinal::North,
                 _ => bail!("invalid plan"),
             };
 

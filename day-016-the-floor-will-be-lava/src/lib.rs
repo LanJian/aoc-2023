@@ -2,7 +2,7 @@ use std::str::FromStr;
 
 use anyhow::bail;
 use aoc_common::{
-    direction::CardinalDirection,
+    direction::Cardinal,
     grid::{Coordinate, Grid},
 };
 use aoc_plumbing::Problem;
@@ -74,32 +74,24 @@ impl TheFloorWillBeLava {
         let mut visited = FxHashSet::default();
 
         for i in 0..self.grid.n {
-            self.energize_helper(&(i, 0).into(), &CardinalDirection::East, &mut visited);
+            self.energize_helper(&(i, 0).into(), &Cardinal::East, &mut visited);
             total = total.max(self.total_energized());
             visited.clear();
             self.clear();
 
-            self.energize_helper(
-                &(i, self.grid.m - 1).into(),
-                &CardinalDirection::West,
-                &mut visited,
-            );
+            self.energize_helper(&(i, self.grid.m - 1).into(), &Cardinal::West, &mut visited);
             total = total.max(self.total_energized());
             visited.clear();
             self.clear();
         }
 
         for j in 0..self.grid.m {
-            self.energize_helper(&(0, j).into(), &CardinalDirection::South, &mut visited);
+            self.energize_helper(&(0, j).into(), &Cardinal::South, &mut visited);
             total = total.max(self.total_energized());
             visited.clear();
             self.clear();
 
-            self.energize_helper(
-                &(self.grid.n - 1, j).into(),
-                &CardinalDirection::North,
-                &mut visited,
-            );
+            self.energize_helper(&(self.grid.n - 1, j).into(), &Cardinal::North, &mut visited);
             total = total.max(self.total_energized());
             visited.clear();
             self.clear();
@@ -120,7 +112,7 @@ impl TheFloorWillBeLava {
     fn energize(&mut self) {
         self.energize_helper(
             &(0_isize, 0_isize).into(),
-            &CardinalDirection::East,
+            &Cardinal::East,
             &mut FxHashSet::default(),
         );
     }
@@ -128,8 +120,8 @@ impl TheFloorWillBeLava {
     fn energize_helper(
         &mut self,
         position: &Coordinate,
-        dir: &CardinalDirection,
-        visited: &mut FxHashSet<(Coordinate, CardinalDirection)>,
+        dir: &Cardinal,
+        visited: &mut FxHashSet<(Coordinate, Cardinal)>,
     ) {
         if !self.grid.is_in_bounds(*position) {
             return;
@@ -148,38 +140,34 @@ impl TheFloorWillBeLava {
         }
 
         if tile.kind == TileKind::VSplit {
-            if *dir == CardinalDirection::North || *dir == CardinalDirection::South {
+            if *dir == Cardinal::North || *dir == Cardinal::South {
                 return self.energize_helper(&position.neighbour(dir), dir, visited);
             }
 
-            self.energize_helper(&position.north(), &CardinalDirection::North, visited);
-            self.energize_helper(&position.south(), &CardinalDirection::South, visited);
+            self.energize_helper(&position.north(), &Cardinal::North, visited);
+            self.energize_helper(&position.south(), &Cardinal::South, visited);
             return;
         }
 
         if tile.kind == TileKind::HSplit {
-            if *dir == CardinalDirection::East || *dir == CardinalDirection::West {
+            if *dir == Cardinal::East || *dir == Cardinal::West {
                 return self.energize_helper(&position.neighbour(dir), dir, visited);
             }
 
-            self.energize_helper(&position.east(), &CardinalDirection::East, visited);
-            self.energize_helper(&position.west(), &CardinalDirection::West, visited);
+            self.energize_helper(&position.east(), &Cardinal::East, visited);
+            self.energize_helper(&position.west(), &Cardinal::West, visited);
             return;
         }
 
         if tile.kind == TileKind::FMirror {
             match dir {
-                CardinalDirection::North => {
-                    self.energize_helper(&position.east(), &CardinalDirection::East, visited)
+                Cardinal::North => self.energize_helper(&position.east(), &Cardinal::East, visited),
+                Cardinal::South => self.energize_helper(&position.west(), &Cardinal::West, visited),
+                Cardinal::East => {
+                    self.energize_helper(&position.north(), &Cardinal::North, visited)
                 }
-                CardinalDirection::South => {
-                    self.energize_helper(&position.west(), &CardinalDirection::West, visited)
-                }
-                CardinalDirection::East => {
-                    self.energize_helper(&position.north(), &CardinalDirection::North, visited)
-                }
-                CardinalDirection::West => {
-                    self.energize_helper(&position.south(), &CardinalDirection::South, visited)
+                Cardinal::West => {
+                    self.energize_helper(&position.south(), &Cardinal::South, visited)
                 }
             }
 
@@ -187,18 +175,10 @@ impl TheFloorWillBeLava {
         }
 
         match dir {
-            CardinalDirection::North => {
-                self.energize_helper(&position.west(), &CardinalDirection::West, visited)
-            }
-            CardinalDirection::South => {
-                self.energize_helper(&position.east(), &CardinalDirection::East, visited)
-            }
-            CardinalDirection::East => {
-                self.energize_helper(&position.south(), &CardinalDirection::South, visited)
-            }
-            CardinalDirection::West => {
-                self.energize_helper(&position.north(), &CardinalDirection::North, visited)
-            }
+            Cardinal::North => self.energize_helper(&position.west(), &Cardinal::West, visited),
+            Cardinal::South => self.energize_helper(&position.east(), &Cardinal::East, visited),
+            Cardinal::East => self.energize_helper(&position.south(), &Cardinal::South, visited),
+            Cardinal::West => self.energize_helper(&position.north(), &Cardinal::North, visited),
         }
     }
 }

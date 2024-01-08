@@ -5,7 +5,7 @@ use std::{
     ops::{Index, IndexMut},
 };
 
-use crate::direction::CardinalDirection;
+use crate::direction::Cardinal;
 
 #[derive(PartialEq, Eq, Clone, Copy, Hash, Default)]
 pub struct Coordinate(pub isize, pub isize);
@@ -110,17 +110,17 @@ impl Coordinate {
     }
 
     /// Returns the neighbour to the given direction
-    pub fn neighbour(&self, direction: &CardinalDirection) -> Self {
+    pub fn neighbour(&self, direction: &Cardinal) -> Self {
         match direction {
-            CardinalDirection::North => self.north(),
-            CardinalDirection::South => self.south(),
-            CardinalDirection::West => self.west(),
-            CardinalDirection::East => self.east(),
+            Cardinal::North => self.north(),
+            Cardinal::South => self.south(),
+            Cardinal::West => self.west(),
+            Cardinal::East => self.east(),
         }
     }
 
     /// Returns the coordinate that is the given steps away in the given direction
-    pub fn steps(&self, direction: &CardinalDirection, steps: usize) -> Self {
+    pub fn steps(&self, direction: &Cardinal, steps: usize) -> Self {
         let mut ret = *self;
         for _ in 0..steps {
             ret = ret.neighbour(direction);

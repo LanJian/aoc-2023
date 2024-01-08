@@ -1,12 +1,12 @@
 #[derive(Debug, Clone, Copy, Eq, PartialEq, Hash)]
-pub enum CardinalDirection {
+pub enum Cardinal {
     North,
     East,
     South,
     West,
 }
 
-impl CardinalDirection {
+impl Cardinal {
     pub fn all() -> [Self; 4] {
         [Self::North, Self::South, Self::West, Self::East]
     }

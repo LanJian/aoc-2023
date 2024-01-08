@@ -2,7 +2,7 @@ use std::str::FromStr;
 
 use anyhow::bail;
 use aoc_common::{
-    direction::CardinalDirection,
+    direction::Cardinal,
     grid::{Coordinate, Grid},
 };
 use aoc_plumbing::Problem;
@@ -70,10 +70,10 @@ impl ParabolicReflectorDish {
 
         // first find the cycle start and period
         for i in 0..cycles {
-            self.tilt(CardinalDirection::North);
-            self.tilt(CardinalDirection::West);
-            self.tilt(CardinalDirection::South);
-            self.tilt(CardinalDirection::East);
+            self.tilt(Cardinal::North);
+            self.tilt(Cardinal::West);
+            self.tilt(Cardinal::South);
+            self.tilt(Cardinal::East);
 
             // keep a key of the last 5 loads
             key = key << 32 | self.total_load() as u128;
@@ -94,19 +94,19 @@ impl ParabolicReflectorDish {
         // then jump ahead and process the remaining cycles
         let remaining = (cycles - start - 1) % period;
         for _ in 0..remaining {
-            self.tilt(CardinalDirection::North);
-            self.tilt(CardinalDirection::West);
-            self.tilt(CardinalDirection::South);
-            self.tilt(CardinalDirection::East);
+            self.tilt(Cardinal::North);
+            self.tilt(Cardinal::West);
+            self.tilt(Cardinal::South);
+            self.tilt(Cardinal::East);
         }
     }
 
-    fn tilt(&mut self, dir: CardinalDirection) {
+    fn tilt(&mut self, dir: Cardinal) {
         match dir {
-            CardinalDirection::North => self.tilt_helper(true, false),
-            CardinalDirection::South => self.tilt_helper(true, true),
-            CardinalDirection::West => self.tilt_helper(false, false),
-            CardinalDirection::East => self.tilt_helper(false, true),
+            Cardinal::North => self.tilt_helper(true, false),
+            Cardinal::South => self.tilt_helper(true, true),
+            Cardinal::West => self.tilt_helper(false, false),
+            Cardinal::East => self.tilt_helper(false, true),
         }
     }
 
@@ -176,7 +176,7 @@ impl Problem for ParabolicReflectorDish {
     type P2 = usize;
 
     fn part_one(&mut self) -> Result<Self::P1, Self::ProblemError> {
-        self.tilt(CardinalDirection::North);
+        self.tilt(Cardinal::North);
         Ok(self.total_load())
     }
 

@@ -2,7 +2,7 @@ use std::{collections::VecDeque, str::FromStr};
 
 use anyhow::{anyhow, bail};
 use aoc_common::{
-    direction::CardinalDirection,
+    direction::Cardinal,
     grid::{Coordinate, Grid},
 };
 use aoc_plumbing::Problem;
@@ -12,7 +12,7 @@ use rustc_hash::{FxHashMap, FxHashSet};
 enum Tile {
     Empty,
     Wall,
-    Slope(CardinalDirection),
+    Slope(Cardinal),
 }
 
 impl TryFrom<char> for Tile {
@@ -22,10 +22,10 @@ impl TryFrom<char> for Tile {
         Ok(match value {
             '.' => Self::Empty,
             '#' => Self::Wall,
-            '^' => Self::Slope(CardinalDirection::North),
-            '>' => Self::Slope(CardinalDirection::East),
-            'v' => Self::Slope(CardinalDirection::South),
-            '<' => Self::Slope(CardinalDirection::West),
+            '^' => Self::Slope(Cardinal::North),
+            '>' => Self::Slope(Cardinal::East),
+            'v' => Self::Slope(Cardinal::South),
+            '<' => Self::Slope(Cardinal::West),
             _ => bail!("invalid tile"),
         })
     }

@@ -3,7 +3,7 @@ use std::{collections::VecDeque, str::FromStr};
 
 use anyhow::{anyhow, bail, Result};
 use aoc_common::{
-    direction::CardinalDirection,
+    direction::Cardinal,
     grid::{Coordinate, Grid},
 };
 use aoc_plumbing::Problem;
@@ -22,21 +22,21 @@ enum Tile {
 }
 
 impl Tile {
-    fn connects(&self, dir: &CardinalDirection) -> bool {
+    fn connects(&self, dir: &Cardinal) -> bool {
         matches!(
             (self, dir),
-            (Self::NS, CardinalDirection::North)
-                | (Self::NS, CardinalDirection::South)
-                | (Self::EW, CardinalDirection::East)
-                | (Self::EW, CardinalDirection::West)
-                | (Self::NE, CardinalDirection::North)
-                | (Self::NE, CardinalDirection::East)
-                | (Self::NW, CardinalDirection::North)
-                | (Self::NW, CardinalDirection::West)
-                | (Self::SW, CardinalDirection::South)
-                | (Self::SW, CardinalDirection::West)
-                | (Self::SE, CardinalDirection::South)
-                | (Self::SE, CardinalDirection::East)
+            (Self::NS, Cardinal::North)
+                | (Self::NS, Cardinal::South)
+                | (Self::EW, Cardinal::East)
+                | (Self::EW, Cardinal::West)
+                | (Self::NE, Cardinal::North)
+                | (Self::NE, Cardinal::East)
+                | (Self::NW, Cardinal::North)
+                | (Self::NW, Cardinal::West)
+                | (Self::SW, Cardinal::South)
+                | (Self::SW, Cardinal::West)
+                | (Self::SE, Cardinal::South)
+                | (Self::SE, Cardinal::East)
                 | (Self::Start, _)
         )
     }
@@ -103,7 +103,7 @@ pub struct PipeMaze {
 }
 
 impl PipeMaze {
-    fn connects(&self, coord: &Coordinate, dir: &CardinalDirection) -> bool {
+    fn connects(&self, coord: &Coordinate, dir: &Cardinal) -> bool {
         if !self.grid.is_in_bounds(coord.neighbour(dir)) {
             return false;
         }
@@ -112,20 +112,10 @@ impl PipeMaze {
         let other = self.grid[coord.neighbour(dir)];
 
         match dir {
-            CardinalDirection::North => {
-                tile.connects(&CardinalDirection::North)
-                    && other.connects(&CardinalDirection::South)
-            }
-            CardinalDirection::South => {
-                tile.connects(&CardinalDirection::South)
-                    && other.connects(&CardinalDirection::North)
-            }
-            CardinalDirection::West => {
-                tile.connects(&CardinalDirection::West) && other.connects(&CardinalDirection::East)
-            }
-            CardinalDirection::East => {
-                tile.connects(&CardinalDirection::East) && other.connects(&CardinalDirection::West)
-            }
+            Cardinal::North => tile.connects(&Cardinal::North) && other.connects(&Cardinal::South),
+            Cardinal::South => tile.connects(&Cardinal::South) && other.connects(&Cardinal::North),
+            Cardinal::West => tile.connects(&Cardinal::West) && other.connects(&Cardinal::East),
+            Cardinal::East => tile.connects(&Cardinal::East) && other.connects(&Cardinal::West),
         }
     }
 
@@ -133,24 +123,24 @@ impl PipeMaze {
         if self
             .grid
             .get(self.start.north())
-            .is_some_and(|x| x.connects(&CardinalDirection::South))
+            .is_some_and(|x| x.connects(&Cardinal::South))
         {
             if self
                 .grid
                 .get(self.start.south())
-                .is_some_and(|x| x.connects(&CardinalDirection::North))
+                .is_some_and(|x| x.connects(&Cardinal::North))
             {
                 Ok(Tile::NS)
             } else if self
                 .grid
                 .get(self.start.west())
-                .is_some_and(|x| x.connects(&CardinalDirection::East))
+                .is_some_and(|x| x.connects(&Cardinal::East))
             {
                 Ok(Tile::NW)
             } else if self
                 .grid
                 .get(self.start.east())
-                .is_some_and(|x| x.connects(&CardinalDirection::West))
+                .is_some_and(|x| x.connects(&Cardinal::West))
             {
                 Ok(Tile::NE)
             } else {
@@ -159,18 +149,18 @@ impl PipeMaze {
         } else if self
             .grid
             .get(self.start.south())
-            .is_some_and(|x| x.connects(&CardinalDirection::North))
+            .is_some_and(|x| x.connects(&Cardinal::North))
         {
             if self
                 .grid
                 .get(self.start.west())
-                .is_some_and(|x| x.connects(&CardinalDirection::East))
+                .is_some_and(|x| x.connects(&Cardinal::East))
             {
                 Ok(Tile::SW)
             } else if self
                 .grid
                 .get(self.start.east())
-                .is_some_and(|x| x.connects(&CardinalDirection::West))
+                .is_some_and(|x| x.connects(&Cardinal::West))
             {
                 Ok(Tile::SE)
             } else {
@@ -207,7 +197,7 @@ impl PipeMaze {
                 TileKind::Loop(self.grid[coord])
             };
 
-            for dir in CardinalDirection::all() {
+            for dir in Cardinal::all() {
                 if self.connects(&coord, &dir) {
                     q.push_back(coord.neighbour(&dir));
                 }
@@ -328,7 +318,7 @@ impl PipeMaze {
                 max_dist = dist;
             }
 
-            for dir in CardinalDirection::all() {
+            for dir in Cardinal::all() {
                 if self.connects(&coord, &dir) {
                     q.push_back((coord.neighbour(&dir), dist + 1));
                 }

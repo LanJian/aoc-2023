@@ -2,11 +2,26 @@ use std::{collections::BinaryHeap, str::FromStr};
 
 use anyhow::anyhow;
 use aoc_common::{
-    direction::CardinalDirection,
+    direction::Cardinal,
     grid::{Coordinate, Grid},
 };
 use aoc_plumbing::Problem;
 use rustc_hash::{FxHashMap, FxHashSet};
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+enum Orientation {
+    Horizontal,
+    Vertical,
+}
+
+impl Orientation {
+    fn opposite(&self) -> Self {
+        match self {
+            Self::Horizontal => Self::Vertical,
+            Self::Vertical => Self::Horizontal,
+        }
+    }
+}
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 struct Block {
@@ -26,20 +41,64 @@ impl TryFrom<char> for Block {
     }
 }
 
-#[derive(Debug, Clone, PartialEq, Eq)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
 struct Node {
     dist: usize,
-    moved: usize,
-    dir: CardinalDirection,
+    orientation: Orientation,
     coord: Coordinate,
 }
 
 impl Node {
+    pub fn new(dist: usize, orientation: Orientation, coord: Coordinate) -> Self {
+        Self { dist, orientation, coord }
+    }
+
     fn key(&self) -> u32 {
         (self.coord.row() as u32) << 24
             | (self.coord.col() as u32) << 16
-            | (self.moved as u32) << 8
-            | (self.dir as u32)
+            | (self.orientation as u32)
+    }
+
+    fn neighbours_helper(
+        &self,
+        min: usize,
+        max: usize,
+        dir: &Cardinal,
+        grid: &Grid<Block>,
+        ret: &mut Vec<Self>,
+    ) {
+        let orientation = self.orientation.opposite();
+        let mut dist = self.dist;
+
+        for i in 1..=max {
+            let coord = self.coord.steps(dir, i);
+
+            if !grid.is_in_bounds(coord) {
+                break;
+            }
+
+            dist += grid[coord].value;
+
+            if i < min {
+                continue;
+            }
+
+            ret.push(Self::new(dist, orientation, coord));
+        }
+    }
+
+    fn neighbours(&self, min: usize, max: usize, grid: &Grid<Block>) -> Vec<Self> {
+        let mut ret = Vec::default();
+
+        if self.orientation == Orientation::Horizontal {
+            self.neighbours_helper(min, max, &Cardinal::North, grid, &mut ret);
+            self.neighbours_helper(min, max, &Cardinal::South, grid, &mut ret);
+        } else {
+            self.neighbours_helper(min, max, &Cardinal::East, grid, &mut ret);
+            self.neighbours_helper(min, max, &Cardinal::West, grid, &mut ret);
+        }
+
+        ret
     }
 }
 
@@ -61,7 +120,7 @@ pub struct ClumsyCrucible {
 }
 
 impl ClumsyCrucible {
-    fn dijkstra_two(&self) -> usize {
+    fn dijkstra_two(&self, min: usize, max: usize) -> usize {
         let mut visited = FxHashSet::default();
         let mut acc = FxHashMap::default();
         let mut q: BinaryHeap<Node> = BinaryHeap::default();
@@ -69,20 +128,10 @@ impl ClumsyCrucible {
         let start = (0_isize, 0_isize).into();
         let end = (self.grid.n - 1, self.grid.m - 1).into();
 
-        let node1 = Node {
-            dist: 0,
-            moved: 10,
-            dir: CardinalDirection::South,
-            coord: start,
-        };
-        let node2 = Node {
-            dist: 0,
-            moved: 10,
-            dir: CardinalDirection::East,
-            coord: start,
-        };
-        acc.insert(node1.key(), 0);
-        acc.insert(node2.key(), 0);
+        let node1 = Node::new(0, Orientation::Horizontal, start);
+        let node2 = Node::new(0, Orientation::Vertical, start);
+        acc.insert(node1.key(), node1.dist);
+        acc.insert(node2.key(), node2.dist);
         q.push(node1);
         q.push(node2);
 
@@ -98,117 +147,10 @@ impl ClumsyCrucible {
 
             visited.insert(node.key());
 
-            'outer: for d in CardinalDirection::all() {
-                if node.dir.opposite() == d {
-                    continue;
-                }
-
-                let next_dist;
-                let next_moved;
-                let next_coord;
-
-                if node.dir == d {
-                    if node.moved >= 10 {
-                        continue;
-                    }
-
-                    next_coord = coord.neighbour(&d);
-                    if !self.grid.is_in_bounds(next_coord) {
-                        continue;
-                    }
-
-                    next_dist = node.dist + self.grid[next_coord].value;
-                    next_moved = node.moved + 1;
-                } else {
-                    let mut cur_coord = coord;
-                    let mut cur_dist = node.dist;
-                    next_moved = 4;
-
-                    for _ in 0..4 {
-                        cur_coord = cur_coord.neighbour(&d);
-                        if !self.grid.is_in_bounds(cur_coord) {
-                            continue 'outer;
-                        }
-
-                        cur_dist += self.grid[cur_coord].value;
-                    }
-
-                    next_coord = cur_coord;
-                    next_dist = cur_dist;
-                }
-
-                let next_node = Node {
-                    dist: next_dist,
-                    moved: next_moved,
-                    dir: d,
-                    coord: next_coord,
-                };
-
-                if next_dist < *acc.get(&next_node.key()).unwrap_or(&usize::MAX) {
-                    acc.insert(next_node.key(), next_dist);
-                    q.push(next_node);
-                }
-            }
-        }
-
-        unreachable!()
-    }
-
-    fn dijkstra_one(&self) -> usize {
-        let mut visited = FxHashSet::default();
-        let mut acc = FxHashMap::default();
-        let mut q: BinaryHeap<Node> = BinaryHeap::default();
-
-        let start = (0_isize, 0_isize).into();
-        let end = (self.grid.n - 1, self.grid.m - 1).into();
-
-        let start_node = Node {
-            dist: 0,
-            moved: 0,
-            dir: CardinalDirection::South,
-            coord: start,
-        };
-        acc.insert(start_node.key(), 0);
-        q.push(start_node);
-
-        while let Some(node) = q.pop() {
-            let coord = node.coord;
-            if coord == end {
-                return node.dist;
-            }
-
-            if visited.contains(&node.key()) {
-                continue;
-            }
-
-            visited.insert(node.key());
-
-            for d in CardinalDirection::all() {
-                if node.dir.opposite() == d {
-                    continue;
-                }
-
-                let neighbour = coord.neighbour(&d);
-
-                if !self.grid.is_in_bounds(neighbour) {
-                    continue;
-                }
-
-                if node.dir == d && node.moved >= 3 {
-                    continue;
-                }
-
-                let next_moved = if node.dir == d { node.moved + 1 } else { 1 };
-                let next_dist = node.dist + self.grid[neighbour].value;
-                let next_node = Node {
-                    dist: next_dist,
-                    moved: next_moved,
-                    dir: d,
-                    coord: neighbour,
-                };
-                if next_dist < *acc.get(&next_node.key()).unwrap_or(&usize::MAX) {
-                    acc.insert(next_node.key(), next_dist);
-                    q.push(next_node);
+            for neighbour in &node.neighbours(min, max, &self.grid) {
+                if neighbour.dist < *acc.get(&neighbour.key()).unwrap_or(&usize::MAX) {
+                    acc.insert(neighbour.key(), neighbour.dist);
+                    q.push(*neighbour);
                 }
             }
         }
@@ -237,11 +179,11 @@ impl Problem for ClumsyCrucible {
     type P2 = usize;
 
     fn part_one(&mut self) -> Result<Self::P1, Self::ProblemError> {
-        Ok(self.dijkstra_one())
+        Ok(self.dijkstra_two(1, 3))
     }
 
     fn part_two(&mut self) -> Result<Self::P2, Self::ProblemError> {
-        Ok(self.dijkstra_two())
+        Ok(self.dijkstra_two(4, 10))
     }
 }
 
