@@ -143,7 +143,7 @@ impl ClumsyCrucible {
         }
     }
 
-    fn dijkstra_two(&self, min: usize, max: usize) -> usize {
+    fn dijkstra(&self, min: usize, max: usize) -> usize {
         let mut acc: FxHashMap<MemoNode, usize> = FxHashMap::default();
         let mut q: BinaryHeap<Node> = BinaryHeap::default();
 
@@ -194,11 +194,11 @@ impl Problem for ClumsyCrucible {
     type P2 = usize;
 
     fn part_one(&mut self) -> Result<Self::P1, Self::ProblemError> {
-        Ok(self.dijkstra_two(1, 3))
+        Ok(self.dijkstra(1, 3))
     }
 
     fn part_two(&mut self) -> Result<Self::P2, Self::ProblemError> {
-        Ok(self.dijkstra_two(4, 10))
+        Ok(self.dijkstra(4, 10))
     }
 }
 
