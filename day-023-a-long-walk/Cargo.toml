@@ -12,6 +12,6 @@ aoc-common = { path = "../aoc-common" }
 anyhow = { workspace = true }
 # itertools = { workspace = true }
 nom = { workspace = true }
-# rayon = { workspace = true }
+rayon = { workspace = true }
 rustc-hash = { workspace = true }
 serde = { workspace = true }

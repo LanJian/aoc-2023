@@ -1,3 +1,4 @@
+use rayon::prelude::*;
 use std::{collections::VecDeque, str::FromStr};
 
 use anyhow::{anyhow, bail};
@@ -131,11 +132,31 @@ impl ALongWalk {
         graph
     }
 
-    fn longest_path_flat(&self) -> Option<usize> {
+    fn longest_path_flat(&self, start_depth: usize) -> Option<usize> {
         let graph = self.build_graph();
-        let (penultimate, cost) = graph[1].neighbours[0];
+        let (penultimate, last_cost) = graph[1].neighbours[0];
 
-        Self::longest_path_flat_helper(0, penultimate, &graph, 0).map(|x| x + cost)
+        let mut cur = vec![(0usize, 0usize, 0usize, 0u64)];
+        let mut next = Vec::default();
+
+        for _ in 0..start_depth {
+            next.extend(cur.drain(..).flat_map(|(u, cost, depth, visited)| {
+                graph[u]
+                    .neighbours
+                    .iter()
+                    .filter(move |&(v, _)| !is_visited(*v, visited))
+                    .map(move |&(v, c)| (v, cost + c, depth + 1, visit(u, visited)))
+            }));
+
+            std::mem::swap(&mut cur, &mut next);
+        }
+
+        cur.into_par_iter()
+            .filter_map(|(u, cost, _, visited)| {
+                Self::longest_path_flat_helper(u, penultimate, &graph, visited)
+                    .map(|x| x + last_cost + cost)
+            })
+            .max()
     }
 
     fn longest_path_flat_helper(
@@ -229,7 +250,7 @@ impl Problem for ALongWalk {
     }
 
     fn part_two(&mut self) -> Result<Self::P2, Self::ProblemError> {
-        self.longest_path_flat()
+        self.longest_path_flat(10)
             .ok_or_else(|| anyhow!("no path found"))
     }
 }
@@ -251,7 +272,8 @@ mod tests {
     #[test]
     fn example() {
         let input = std::fs::read_to_string("example.txt").expect("Unable to load input");
-        let solution = ALongWalk::solve(&input).unwrap();
-        assert_eq!(solution, Solution::new(94, 154));
+        let mut instance = ALongWalk::instance(&input).unwrap();
+        assert_eq!(instance.part_one().unwrap(), 94);
+        assert_eq!(instance.longest_path_flat(3).unwrap(), 154);
     }
 }

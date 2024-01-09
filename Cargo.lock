@@ -10,6 +10,7 @@ dependencies = [
  "aoc-common",
  "aoc-plumbing",
  "nom",
+ "rayon",
  "rustc-hash",
  "serde",
 ]
