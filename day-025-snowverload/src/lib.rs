@@ -1,98 +1,110 @@
-use std::str::FromStr;
+use std::{collections::VecDeque, str::FromStr};
 
 use anyhow::{anyhow, Result};
 use aoc_plumbing::Problem;
-use rand::{distributions::WeightedIndex, prelude::Distribution, rngs::ThreadRng, thread_rng};
-use rayon::prelude::{IntoParallelIterator, ParallelIterator};
-use rustc_hash::FxHashMap;
+use rand::{seq::SliceRandom, thread_rng};
+use rustc_hash::{FxHashMap, FxHashSet};
 
-type Graph = FxHashMap<u16, FxHashMap<u16, usize>>;
+type Graph = FxHashMap<u16, Vec<u16>>;
 
 #[derive(Debug, Clone)]
 pub struct Snowverload {
     graph: Graph,
+    vertices: Vec<u16>,
 }
 
 impl Snowverload {
-    fn min_cut(&self) -> Result<usize> {
-        let result = (0..5000).into_par_iter().find_map_any(|_| {
-            let mut rng = thread_rng();
-            let mut g = self.graph.clone();
-            let mut vertices: FxHashMap<u16, usize> = g.keys().map(|x| (*x, 1)).collect();
+    fn min_cut(&self) -> Option<usize> {
+        let mut rng = thread_rng();
 
-            while vertices.len() > 2 {
-                Self::contract(&mut g, &mut vertices, &mut rng);
+        loop {
+            // randomly choose source and sink until we find a pair where the max flow between
+            // them is 3. the groups are reasonably evenly distributed so that we have around 50%
+            // chance of choosing a correct pair
+            let mut iter = self.vertices.choose_multiple(&mut rng, 2).copied();
+            let (source, sink) = (iter.next().unwrap(), iter.next().unwrap());
+
+            if let Some(result) = self.min_cut_helper(source, sink) {
+                return Some(result);
             }
-
-            // safe to unwrap because we know theres 2 vertices with edges between them
-            if *g
-                .values()
-                .next()
-                .expect("could not get vertex")
-                .values()
-                .next()
-                .expect("could not get edge count")
-                == 3
-            {
-                Some(vertices.values().product())
-            } else {
-                None
-            }
-        });
-
-        result.ok_or_else(|| anyhow!("could not find answer"))
-    }
-
-    fn contract(graph: &mut Graph, vertices: &mut FxHashMap<u16, usize>, rng: &mut ThreadRng) {
-        let (u, v) = Self::random_edge(graph, rng);
-
-        // move all edges going to v to go to u
-        // safe to unwrap, we guarantee the vertex is in the graph
-        let edges = graph
-            .remove(&v)
-            .expect("could not remove contracted vertex");
-
-        for (&k, &count) in &edges {
-            if k == u {
-                continue;
-            }
-
-            // update v -> k edges to u -> k
-            graph.entry(u).and_modify(|x| {
-                x.entry(k).and_modify(|y| *y += count).or_insert(count);
-            });
-
-            // update k -> v edges to k -> u
-            graph.entry(k).and_modify(|x| {
-                x.entry(u).and_modify(|y| *y += count).or_insert(count);
-                x.remove(&v);
-            });
         }
-
-        graph.entry(u).and_modify(|x| {
-            x.remove(&v);
-        });
-
-        let count = vertices[&v];
-        vertices.entry(u).and_modify(|x| *x += count);
-        vertices.remove(&v);
     }
 
-    fn random_edge(graph: &Graph, rng: &mut ThreadRng) -> (u16, u16) {
-        // we have to pick an edge from a weighted distribution
-        let mut edges = Vec::default();
-        let mut weights = Vec::default();
+    fn min_cut_helper(&self, source: u16, sink: u16) -> Option<usize> {
+        let mut pred = FxHashMap::default();
+        let mut q = VecDeque::default();
+        let mut visited_edges = FxHashSet::default();
+        let mut flow = 0;
 
-        for (&u, neighbours) in graph {
-            for (&v, &count) in neighbours {
-                edges.push((u, v));
-                weights.push(count);
+        // do bfs over and over again until we can't reach the sink anymore, or if we've exceeded a
+        // flow of 3
+        loop {
+            pred.clear();
+            q.clear();
+            q.push_back(source);
+
+            while let Some(u) = q.pop_front() {
+                if pred.contains_key(&sink) {
+                    flow += 1;
+                    break;
+                }
+
+                for &v in &self.graph[&u] {
+                    if !pred.contains_key(&v) && v != source && !visited_edges.contains(&(u, v)) {
+                        pred.insert(v, u);
+                        q.push_back(v)
+                    }
+                }
+            }
+
+            // if flow is > 3, it means the source and sink we've chosen are not correct, we can
+            // just return early in this case
+            if flow > 3 {
+                return None;
+            }
+
+            // sink is unreachable, don't search further
+            if !pred.contains_key(&sink) {
+                break;
+            }
+
+            // we know the flow is always 1, so we simplify updating the residual network to just
+            // insert visited edges
+            let mut v = sink;
+            while let Some(&u) = pred.get(&v) {
+                visited_edges.insert((u, v));
+                v = u;
             }
         }
 
-        // safe to unwrap because weights are guaranteed to be well-formed
-        let dist = WeightedIndex::new(&weights).expect("coult not build distribution");
-        edges[dist.sample(rng)]
+        // we probably never hit this, but just in case if for whatever reason the min cut is
+        // actually < 3?
+        if flow != 3 {
+            return None;
+        }
+
+        // now we just need to do bfs from the source once while avoiding the edges that have
+        // already reached capacity (visited_edges). since we've found the max flow, all the min
+        // cut edges should be saturated, which means our bfs will only reach 1 of the 2 islands.
+        let mut visited_vertices = FxHashSet::default();
+        let mut q = VecDeque::default();
+        q.push_back(source);
+        visited_vertices.insert(source);
+
+        while let Some(u) = q.pop_front() {
+            for &v in &self.graph[&u] {
+                if !visited_vertices.contains(&v)
+                    && !visited_edges.contains(&(u, v))
+                    && !visited_edges.contains(&(v, u))
+                {
+                    q.push_back(v);
+                    visited_vertices.insert(v);
+                }
+            }
+        }
+
+        let count = visited_vertices.len();
+        Some(count * (self.graph.len() - count))
     }
 }
 
@@ -105,35 +117,29 @@ impl FromStr for Snowverload {
         for line in s.lines() {
             if let Some((left, right)) = line.split_once(": ") {
                 let v = u16::from_str_radix(left, 36)?;
+
                 for token in right.split_whitespace() {
                     let u = u16::from_str_radix(token, 36)?;
 
                     graph
                         .entry(v)
                         .and_modify(|x| {
-                            x.insert(u, 1);
+                            x.push(u);
                         })
-                        .or_insert({
-                            let mut x = FxHashMap::default();
-                            x.insert(u, 1);
-                            x
-                        });
+                        .or_insert(vec![u]);
 
                     graph
                         .entry(u)
                         .and_modify(|x| {
-                            x.insert(v, 1);
+                            x.push(v);
                         })
-                        .or_insert({
-                            let mut x = FxHashMap::default();
-                            x.insert(v, 1);
-                            x
-                        });
+                        .or_insert(vec![v]);
                 }
             }
         }
 
-        Ok(Self { graph })
+        let vertices = graph.keys().copied().collect();
+        Ok(Self { graph, vertices })
     }
 }
 
@@ -148,6 +154,7 @@ impl Problem for Snowverload {
 
     fn part_one(&mut self) -> Result<Self::P1, Self::ProblemError> {
         self.min_cut()
+            .ok_or_else(|| anyhow!("count not find answer"))
     }
 
     fn part_two(&mut self) -> Result<Self::P2, Self::ProblemError> {
